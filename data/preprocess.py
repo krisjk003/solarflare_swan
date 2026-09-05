@@ -44,13 +44,15 @@ def remove_mostly_bad(X, files_list=None):
     return X_out[is_mostly_good], is_mostly_good
 
 
-def official_nan_to_num(X):
+def official_nan_to_num(X, fallback_mean=None):
     """
     Official local_avg + avg fallback behavior.
     X expected shape: [N, 24, 60]
     """
     X_out = X.copy()
     if len(X_out) == 0:
+        if fallback_mean is None:
+            return X_out, None
         return X_out
         
     # Local Average Imputation (window=7)
@@ -63,10 +65,13 @@ def official_nan_to_num(X):
             X_out[:, :, i] = np.where(np.isnan(X_out[:, :, i]), temp, X_out[:, :, i])
 
     # Global Fallback Imputation (avg)
-    mask = ma.array(X_out, mask=np.isnan(X_out)).mean(axis=(0, 2))[:, np.newaxis]
-    X_out = np.where(np.isnan(X_out), mask, X_out)
-    
-    return X_out
+    if fallback_mean is None:
+        computed_fallback = ma.array(X_out, mask=np.isnan(X_out)).mean(axis=(0, 2))[:, np.newaxis]
+        X_out = np.where(np.isnan(X_out), computed_fallback, X_out)
+        return X_out, computed_fallback
+    else:
+        X_out = np.where(np.isnan(X_out), fallback_mean, X_out)
+        return X_out
 
 
 def fit_minmax(X):

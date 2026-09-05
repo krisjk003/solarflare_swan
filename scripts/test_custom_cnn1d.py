@@ -6,17 +6,14 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import torch
 import torch.nn as nn
-from models.cmod import Cmod
+from models.custom_cnn1d import CustomCNN1D
 
 def main():
-    print("--- Cmod Architecture Inspection ---")
-    model = Cmod(in_channels=24)
+    print("--- CustomCNN1D Architecture Inspection ---")
+    model = CustomCNN1D(in_channels=24)
     
     # 4. Dummy input
     x = torch.randn(4, 24, 60)
-    
-    # Initialize lazy layers to calculate parameter count accurately
-    model.initialize_lazy_layers(x)
     
     # 2. Print architecture
     print("\nArchitecture:")

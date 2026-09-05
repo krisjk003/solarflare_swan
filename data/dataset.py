@@ -57,10 +57,11 @@ class FlairDataset(Dataset):
 
 
 def prepare_data(data_dir, batch_size=64, num_workers=4, max_files=None, test_max_files=None):
-    train_partitions = ['partition1', 'partition2', 'partition3', 'partition4']
+    train_partitions = ['partition1', 'partition2', 'partition3']
+    val_partitions = ['partition4']
     test_partitions = ['partition5']
     
-    # 1. Load/select instances
+    # 1. Load/select instances for Training (P1-P3)
     print("Selecting training files...")
     all_t_files, all_t_classes = _get_partition_files(data_dir, train_partitions)
     
@@ -69,7 +70,7 @@ def prepare_data(data_dir, batch_size=64, num_workers=4, max_files=None, test_ma
         all_t_files = all_t_files[idx]
         all_t_classes = all_t_classes[idx]
         
-    # Official Sampling behavior (6500 neg, 1000 pos)
+    # Official Sampling behavior (6500 neg, 1000 pos) ONLY on Train
     rng = np.random.default_rng(seed=42)
     pos_mask = np.isin(all_t_classes, ['M', 'X'])
     neg_mask = np.isin(all_t_classes, ['Q', 'B', 'C'])
@@ -83,36 +84,41 @@ def prepare_data(data_dir, batch_size=64, num_workers=4, max_files=None, test_ma
     sampled_neg = rng.choice(neg_files, n_neg, replace=False)
     sampled_pos = rng.choice(pos_files, n_pos, replace=False)
     
-    selected_files = np.concatenate([sampled_neg, sampled_pos])
-    rng.shuffle(selected_files) # Shuffle them together
+    selected_train_files = np.concatenate([sampled_neg, sampled_pos])
+    rng.shuffle(selected_train_files)
     
-    print(f"Loading {len(selected_files)} raw training files into RAM...")
-    X_train_full = load_files_to_matrix(selected_files)
-    y_train_full = np.array([TargetExtractor.extract_binary(f) for f in selected_files])
+    print(f"Loading {len(selected_train_files)} raw training files into RAM...")
+    X_train = load_files_to_matrix(selected_train_files)
+    y_train = np.array([TargetExtractor.extract_binary(f) for f in selected_train_files])
     
-    print("Removing mostly bad instances from full training set...")
-    n_before = len(X_train_full)
-    X_train_full, good_mask = remove_mostly_bad(X_train_full)
-    y_train_full = y_train_full[good_mask]
-    selected_files = selected_files[good_mask]
-    print(f"Removed {n_before - len(X_train_full)} instances due to >25% missing.")
+    print("Removing mostly bad instances from training set...")
+    n_before = len(X_train)
+    X_train, good_train_mask = remove_mostly_bad(X_train)
+    y_train = y_train[good_train_mask]
+    selected_train_files = selected_train_files[good_train_mask]
+    print(f"Removed {n_before - len(X_train)} instances due to >25% missing.")
     
-    # 2. Create training/validation split
-    print("Creating validation split...")
-    val_p = 0.5
-    n_total = len(X_train_full)
-    val_idx = rng.choice(n_total, int(n_total * val_p), replace=False)
-    train_mask = np.ones(n_total, dtype=bool)
-    train_mask[val_idx] = False
+    # 2. Load Validation instances (P4)
+    print("Selecting validation files...")
+    val_files, _ = _get_partition_files(data_dir, val_partitions)
+    # Val set uses natural distribution; no subsampling except optional max_files
+    if max_files is not None:
+        idx = np.random.choice(len(val_files), max_files, replace=False)
+        val_files = val_files[idx]
+        
+    print(f"Loading {len(val_files)} validation files into RAM...")
+    X_val = load_files_to_matrix(val_files)
+    y_val = np.array([TargetExtractor.extract_binary(f) for f in val_files])
     
-    X_train, y_train, files_train = X_train_full[train_mask], y_train_full[train_mask], selected_files[train_mask]
-    X_val, y_val = X_train_full[val_idx], y_train_full[val_idx]
+    print("Removing mostly bad instances from validation set...")
+    X_val, good_val_mask = remove_mostly_bad(X_val)
+    y_val = y_val[good_val_mask]
     
-    # 3. Apply nan_to_num to train and val separately
+    # 3. Apply nan_to_num and extract fallback_mean from train
     print("Applying official_nan_to_num to train...")
-    X_train = official_nan_to_num(X_train)
+    X_train, fallback_mean = official_nan_to_num(X_train)
     print("Applying official_nan_to_num to val...")
-    X_val = official_nan_to_num(X_val)
+    X_val = official_nan_to_num(X_val, fallback_mean=fallback_mean)
     
     # 4. Load P5 test set
     print("Selecting test files...")
@@ -126,12 +132,12 @@ def prepare_data(data_dir, batch_size=64, num_workers=4, max_files=None, test_ma
     y_test = np.array([TargetExtractor.extract_binary(f) for f in test_files])
     
     print("Removing mostly bad instances from test set...")
-    X_test, good_mask = remove_mostly_bad(X_test)
-    y_test = y_test[good_mask]
+    X_test, good_test_mask = remove_mostly_bad(X_test)
+    y_test = y_test[good_test_mask]
     
     # 5. Apply nan_to_num to P5
     print("Applying official_nan_to_num to test...")
-    X_test = official_nan_to_num(X_test)
+    X_test = official_nan_to_num(X_test, fallback_mean=fallback_mean)
     
     # 6. Fit Min-Max normalizer on TRAIN ONLY
     print("Fitting Min-Max normalizer on train...")
@@ -143,9 +149,9 @@ def prepare_data(data_dir, batch_size=64, num_workers=4, max_files=None, test_ma
     X_val = transform_minmax(X_val, X_min, X_max)
     X_test = transform_minmax(X_test, X_min, X_max)
     
-    # 9. Apply NDBSR to training data
+    # 9. Apply NDBSR to training data ONLY
     print("Applying NDBSR to train...")
-    train_classes = np.array([TargetExtractor.extract_class(f) for f in files_train])
+    train_classes = np.array([TargetExtractor.extract_class(f) for f in selected_train_files])
     ndbsr_mask = ~np.isin(train_classes, ['B', 'C'])
     X_train = X_train[ndbsr_mask]
     y_train = y_train[ndbsr_mask]
@@ -158,13 +164,14 @@ def prepare_data(data_dir, batch_size=64, num_workers=4, max_files=None, test_ma
     
     pipeline_config = {
         'X_min': X_min.tolist(),
-        'X_max': X_max.tolist()
+        'X_max': X_max.tolist(),
+        'fallback_mean': fallback_mean.tolist() if fallback_mean is not None else None
     }
     
     return train_loader, val_loader, test_loader, pipeline_config
 
 
-def prepare_test_data(data_dir, X_min=None, X_max=None, batch_size=64, num_workers=4, test_max_files=None):
+def prepare_test_data(data_dir, X_min=None, X_max=None, fallback_mean=None, batch_size=64, num_workers=4, test_max_files=None):
     test_partitions = ['partition5']
     print("Selecting test files...")
     test_files, _ = _get_partition_files(data_dir, test_partitions)
@@ -181,7 +188,12 @@ def prepare_test_data(data_dir, X_min=None, X_max=None, batch_size=64, num_worke
     y_test = y_test[good_mask]
     
     print("Applying official_nan_to_num to test...")
-    X_test = official_nan_to_num(X_test)
+    if fallback_mean is not None:
+        X_test = official_nan_to_num(X_test, fallback_mean=fallback_mean)
+    else:
+        # Fallback if not provided (warns of leakage)
+        print("WARNING: fallback_mean not provided. Computing from test set (LEAKAGE).")
+        X_test, _ = official_nan_to_num(X_test)
     
     if X_min is not None and X_max is not None:
         print("Transforming test using normalization parameters...")

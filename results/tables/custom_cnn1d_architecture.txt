@@ -1,0 +1,89 @@
+CustomCNN1D Architecture (FPGA-Optimized)
+
+Input: [B, 24, 60] (Batch, Channels, Temporal Steps)
+
+========================================================================
+Layer Details & Tensor Dimensions
+========================================================================
+INPUT
+- Tensor Shape: [B, 24, 60]
+
+BLOCK 1
+- Depthwise Conv1D: in=24, out=24, groups=24, kernel=3, padding=1
+- Pointwise Conv1D: in=24, out=24, kernel=1
+- BatchNorm1D(24)
+- ReLU
+- MaxPool1D(kernel=2, stride=2)
+- Tensor Shape: [B, 24, 30]
+
+BLOCK 2
+- Depthwise Conv1D: in=24, out=24, groups=24, kernel=3, padding=1
+- Pointwise Conv1D: in=24, out=32, kernel=1
+- BatchNorm1D(32)
+- ReLU
+- MaxPool1D(kernel=2, stride=2)
+- Tensor Shape: [B, 32, 15]
+
+BLOCK 3
+- Depthwise Conv1D: in=32, out=32, groups=32, kernel=3, padding=1
+- Pointwise Conv1D: in=32, out=64, kernel=1
+- BatchNorm1D(64)
+- ReLU
+- MaxPool1D(kernel=2, stride=2)
+- Tensor Shape: [B, 64, 7]
+
+BLOCK 4
+- Depthwise Conv1D: in=64, out=64, groups=64, kernel=3, padding=1
+- Pointwise Conv1D: in=64, out=128, kernel=1
+- BatchNorm1D(128)
+- ReLU
+- Tensor Shape: [B, 128, 7]
+
+GLOBAL AVERAGE POOLING
+- Mean along temporal dimension
+- Tensor Shape: [B, 128]
+
+CLASSIFIER
+- Linear: in=128, out=1
+- Tensor Shape: [B, 1] (Raw binary logit)
+
+========================================================================
+Parameter Count & Computation
+========================================================================
+Total Parameters: 13,033
+Trainable Parameters: 13,033
+Approximate Computation: ~172,080 MACs
+
+Parameter Breakdown:
+- b1_dw (Depthwise): 96
+- b1_pw (Pointwise): 600
+- b1_bn: 48
+- b2_dw (Depthwise): 96
+- b2_pw (Pointwise): 800
+- b2_bn: 64
+- b3_dw (Depthwise): 128
+- b3_pw (Pointwise): 2,112
+- b3_bn: 128
+- b4_dw (Depthwise): 256
+- b4_pw (Pointwise): 8,320
+- b4_bn: 256
+- classifier: 129
+
+Comparison vs Cmod:
+- Cmod Parameters: 12,291
+- CustomCNN1D Parameters: 13,033 (+6% difference)
+- Cmod MACs: Extremely high due to standard convolutions on un-pooled temporal dimensions (estimated ~500K-1M+)
+- CustomCNN1D MACs: ~172K (Massively reduced through depthwise-separable convs and aggressive early pooling)
+
+========================================================================
+FPGA-Oriented Rationale & Activation Memory
+========================================================================
+- Deep & Narrow: Channels are expanded mostly after temporal dimension is heavily downsampled. This significantly shrinks activation memory buffers required between layers.
+- Activation Memory Trace: 
+  - [24, 60] = 1,440 elements
+  - [24, 30] = 720 elements
+  - [32, 15] = 480 elements
+  - [64, 7] = 448 elements
+  - [128, 7] = 896 elements
+- Integer Quantization Friendly: Utilizes standard ReLU.
+- Computation Reduction: Leverages purely Depthwise Separable convolutions, keeping MAC count under 200K while retaining representation capacity.

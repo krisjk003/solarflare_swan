@@ -42,7 +42,7 @@ def test_pipeline():
     print(f"NaNs after local_avg: {np.isnan(X_temp).sum()}")
     
     # Run official nan_to_num (includes local_avg and fallback)
-    X_imputed = official_nan_to_num(X_good)
+    X_imputed, _ = official_nan_to_num(X_good)
     nans_after = np.isnan(X_imputed).sum()
     print(f"NaNs after fallback: {nans_after}")
     assert nans_after == 0, "There are still NaNs after fallback!"
