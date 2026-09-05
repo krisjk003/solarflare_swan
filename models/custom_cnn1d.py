@@ -33,8 +33,12 @@ class CustomCNN1D(nn.Module):
         self.b4_relu = nn.ReLU()
         
         # CLASSIFIER
-        self.dropout = nn.Dropout(0.25)
-        self.classifier = nn.Linear(128, 1)
+        self.classifier = nn.Sequential(
+            nn.Linear(256, 32),
+            nn.ReLU(),
+            nn.Dropout(0.25),
+            nn.Linear(32, 1)
+        )
         
     def forward(self, x):
         # x shape: [B, 24, 60]
@@ -51,11 +55,12 @@ class CustomCNN1D(nn.Module):
         # Block 4
         x = self.b4_relu(self.b4_bn(self.b4_pw(self.b4_dw(x)))) # [B, 128, 7]
         
-        # GAP
-        x = x.mean(dim=-1) # [B, 128]
+        # Global Temporal Pooling: Mean + Max
+        x_mean = x.mean(dim=-1)      # [B, 128]
+        x_max = x.max(dim=-1)[0]     # [B, 128]
+        x = torch.cat([x_mean, x_max], dim=1)  # [B, 256]
         
         # Classifier
-        x = self.dropout(x)
         x = self.classifier(x) # [B, 1]
         
         return x
