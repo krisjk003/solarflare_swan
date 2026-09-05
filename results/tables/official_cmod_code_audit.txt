@@ -1,0 +1,44 @@
+=== OFFICIAL CMOD CODE AUDIT ===
+
+1. EXACT PREPROCESSING USED
+The official implementation (foumani/solar_flare_cnn) does NOT use FPCKNN or LSBZM.
+Instead, it relies on a local moving average and standard Min-Max scaling. 
+
+2. EXACT NORMALIZATION
+- Method: Min-Max Scaling [0, 1].
+- Procedure: Calculated as `(X - X_min) / (X_max - X_min)`.
+- Leakage: Safely implemented. `X_min` and `X_max` are computed on the training set and applied to validation and test sets.
+
+3. EXACT MISSING-VALUE HANDLING
+- Method: "local_avg"
+- Procedure: 
+  a) Applies a temporal moving average with a window of 7 time steps (+/- 3 steps).
+  b) Falls back to "avg" (the global feature mean across the entire dataset batch).
+- Leakage: The code contains significant data leakage in the fallback step. `nan_to_num` computes the fallback global average separately for the train, validation, and test sets. This means the test set is imputed using information from the entire test set itself, rather than using the training set's statistics.
+
+4. FPCKNN VERIFICATION
+- Result: DOES NOT EXIST. A full repository search confirms that FPCKNN is entirely absent from the official source code. The paper claims FPCKNN, but the authors actually implemented `local_avg` followed by `avg`.
+
+5. EXACT SAMPLING/BALANCING
+- Target Class Counts: Negative = 6500, Positive = 1000 (`args.train_n = [6500, 1000]`).
+- Under-sampling Method: The code defines a `nonuniform_sample` function but NEVER calls it for the main CNN pipeline. Instead, it uses `pandas.DataFrame.sample()`, which performs uniform random sampling across the combined P1-P4 datasets.
+- NDBSR (Near Decision Boundary Sample Removal): Implemented by explicitly removing instances originally labeled "B" or "C" from the training set *after* the initial sampling.
+- SMOTE: The time-series arrays are flattened from `[N, 24, 60]` to `[N, 1440]`, passed to `imblearn.over_sampling.SMOTE`, and then reshaped back.
+- Augmentation: Uses the `tsaug` library to apply `AddNoise` (scale 0.01-0.05) and `Quantize` (256 levels).
+
+6. EXACT LABEL CONVERSION
+- Q, B, C are converted to Negative (0).
+- M, X are converted to Positive (1).
+
+7. EXACT DATA SHAPE
+- Shape: The official code stores data as `[N, 24, 60]` (N instances, 24 channels/features, 60 timesteps).
+- Our Pipeline Compatibility: Our PyTorch pipeline outputs `[N, 60, 24]`. PyTorch's `Conv1d` expects `(batch, channels, length)`, so our CNN can seamlessly integrate this simply by applying `x = x.transpose(-1, -2)` in the `forward` pass or collate function.
+
+8. EXACT TRAIN/VALIDATION/TEST LOGIC
+- Test Set: Explicitly held out (typically P5).
+- Validation Set: The code shuffles and uniformly selects a percentage (`args.val_p = 0.5`) of the training array (P1-P4). This creates temporal leakage between train and validation because instances from the exact same active region will randomly end up in both sets.
+
+9. DIFFERENCES BETWEEN OUR PIPELINE AND OFFICIAL
+- Our pipeline strictly prevented temporal leakage; the official pipeline introduces it during imputation and validation splitting.
+- We blocked waiting for FPCKNN and LSBZM based on the paper; the official code uses `local_avg` and `Min-Max`.
+- We assumed non-uniform sampling based on the paper; the official code uses uniform sampling.

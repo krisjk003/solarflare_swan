@@ -1,0 +1,28 @@
+# SWAN-SF Dataset Configuration
+data:
+  features: 24
+  sequence_length: 60  # e.g., 60 timesteps (12 hours of 12-min intervals)
+  prediction_window: 12  # hours
+  partitions: [1, 2, 3, 4, 5]
+  train_partitions: [1, 2]
+  val_partitions: [3]
+  test_partitions: [4, 5]
+  missing_value_handling: "forward_fill"  # configurable strategy
+  normalization: "standard" # standard, minmax, none
+  class_balancing: "none" # SMOTE, weights, none
+
+model:
+  name: "lightweight_cnn"
+  input_channels: 24
+  num_classes: 2
+
+quantization:
+  precision: "fp32" # fp32, int8, int7
+  int7_min: -64
+  int7_max: 63
+
+training:
+  batch_size: 32
+  learning_rate: 0.001
+  epochs: 50
+  seed: 42

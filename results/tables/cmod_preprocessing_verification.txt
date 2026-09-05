@@ -1,0 +1,59 @@
+=== CMOD PREPROCESSING VERIFICATION ===
+
+1. EXACT 24 MAGNETIC FEATURES:
+Order verified from SWAN-SF CSV files:
+  1. TOTUSJH
+  2. TOTBSQ
+  3. TOTPOT
+  4. TOTUSJZ
+  5. ABSNJZH
+  6. SAVNCPP
+  7. USFLUX
+  8. TOTFZ
+  9. MEANPOT
+  10. EPSZ
+  11. MEANSHR
+  12. SHRGT45
+  13. MEANGAM
+  14. MEANGBT
+  15. MEANGBZ
+  16. MEANGBH
+  17. MEANJZH
+  18. TOTFY
+  19. MEANJZD
+  20. MEANALP
+  21. TOTFX
+  22. EPSY
+  23. EPSX
+  24. R_VALUE
+
+2. EXACT TARGET DEFINITION:
+- Positive M/X Flare Instance: Any instance where a flare of class M or X occurs within the next 12 hours.
+- Dataset columns/files used: Target is implicitly verified via directory structure ('FL/' vs 'NF/') and filename prefixes (e.g., 'M1.6...', 'X1.2...').
+- Target Leakage Verification: The 60-row timesteps (12 hours) in 'FL' and 'NF' represent the *observation* window prior to the flare. The filename lists the flare occurrence *after* this window. We verified the time steps correspond to observation only, so no information from the prediction window leaks into the input.
+
+3. EXACT MISSING-VALUE HANDLING:
+- FPCKNN Meaning: Fast Pearson Correlation-based K-Nearest Neighbors.
+- Imputation Fitting: Imputation must be fitted exclusively on the training set (P1-P4) to determine nearest neighbors based on Pearson correlation.
+- Leakage Prevention: P5 (test set) must be imputed using the reference space established by P1-P4.
+- [BLOCKED / UNCERTAIN]: The exact FPCKNN algorithmic details (how Pearson correlation handles NaNs during neighbor search, exact K value, weighting scheme, "Fast" approximation method) cannot be confidently established from the 2026 Solar Physics paper without access to the full text or source code. Implementation is HALTED to prevent inventing details or silently falling back to incorrect methods (e.g. standard Euclidean KNN, forward-fill, mean imputation).
+
+4. EXACT NORMALIZATION/SCALING PROCEDURE:
+- Normalization Technique: LSBZM (Log, Square root, Box-Cox, Z-score, Min-Max scaling) or Standard Scaling.
+- Fitted Parameters: Scaling statistics (mean, std, min, max, lambda for Box-Cox) MUST be calculated using ONLY P1-P4.
+- Handling P1-P4 and P5: P1-P4 are normalized using their own statistics. P5 is transformed using the exact parameters fitted from P1-P4 to ensure strict temporal independence.
+
+5. EXACT CLASS-IMBALANCE PROCEDURE:
+- SMOTE: Synthetic Minority Over-sampling Technique is used to generate synthetic >=M class instances from the training set.
+- Non-Uniform Under-Sampling: Used to reduce temporal redundancy and overlap of 'NF' (majority) instances, retaining maximum variance.
+- Data Augmentation: [UNCERTAIN: Specific augmentations beyond SMOTE (e.g. noise injection, time shifting) are not verified from dataset and require literature/repo confirmation].
+- IMPORTANT: Balancing operations (SMOTE/Under-sampling) are applied ONLY to P1-P4. P5 is left completely untouched to reflect real-world imbalance.
+
+6. EXACT CHRONOLOGICAL SPLIT:
+- Training Data: P1, P2, P3, P4 (Chronological sequence).
+- Independent Test Data: P5 (Temporally subsequent to P1-P4).
+- Verification: The division of files into partition1 through partition5 explicitly preserves temporal ordering.
+
+7. 60-ROW PARTITION FILES:
+- Verification: The partition files are already exactly 60 rows per file (sampled at 12 min = 12 hours).
+- Conclusion: NO additional sliding windowing is required for the input instances. The provided CSVs are the final input instances for Cmod.

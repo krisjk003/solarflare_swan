@@ -1,0 +1,18 @@
+# PyTorch CUDA build (CUDA 13.2 / cu132 wheel index)
+--extra-index-url https://download.pytorch.org/whl/cu132
+torch==2.12.1+cu132
+
+# Core Numerical & Data Processing
+numpy==2.2.6
+pandas==2.3.3
+
+# Machine Learning & Class Balancing
+scikit-learn==1.6.1
+imbalanced-learn==0.13.0
+
+# Visualization & Progress Tracking
+matplotlib==3.10.1
+tqdm==4.67.1
+
+# Configuration & Utilities
+pyyaml==6.0.2

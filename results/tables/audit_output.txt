@@ -1,0 +1,70 @@
+1. All CSV columns:
+Timestamp, TOTUSJH, TOTBSQ, TOTPOT, TOTUSJZ, ABSNJZH, SAVNCPP, USFLUX, TOTFZ, MEANPOT, EPSZ, MEANSHR, SHRGT45, MEANGAM, MEANGBT, MEANGBZ, MEANGBH, MEANJZH, TOTFY, MEANJZD, MEANALP, TOTFX, EPSY, EPSX, R_VALUE, CRVAL1, CRLN_OBS, CRLT_OBS, CRVAL2, HC_ANGLE, SPEI, LAT_MIN, LON_MIN, LAT_MAX, LON_MAX, QUALITY, BFLARE, BFLARE_LABEL, CFLARE, CFLARE_LABEL, MFLARE, MFLARE_LABEL, XFLARE, XFLARE_LABEL, BFLARE_LOC, BFLARE_LABEL_LOC, CFLARE_LOC, CFLARE_LABEL_LOC, MFLARE_LOC, MFLARE_LABEL_LOC, XFLARE_LOC, XFLARE_LABEL_LOC, XR_MAX, XR_QUAL, IS_TMFI
+
+2. Candidate magnetic feature columns (first 24 after Timestamp):
+TOTUSJH, TOTBSQ, TOTPOT, TOTUSJZ, ABSNJZH, SAVNCPP, USFLUX, TOTFZ, MEANPOT, EPSZ, MEANSHR, SHRGT45, MEANGAM, MEANGBT, MEANGBZ, MEANGBH, MEANJZH, TOTFY, MEANJZD, MEANALP, TOTFX, EPSY, EPSX, R_VALUE
+
+3. Metadata columns:
+CRVAL1, CRLN_OBS, CRLT_OBS, CRVAL2, HC_ANGLE, SPEI, LAT_MIN, LON_MIN, LAT_MAX, LON_MAX, QUALITY, BFLARE_LOC, BFLARE_LABEL_LOC, CFLARE_LOC, CFLARE_LABEL_LOC, MFLARE_LOC, MFLARE_LABEL_LOC, XFLARE_LOC, XFLARE_LABEL_LOC, XR_MAX, XR_QUAL, IS_TMFI
+
+4. Flare-label columns:
+BFLARE, BFLARE_LABEL, CFLARE, CFLARE_LABEL, MFLARE, MFLARE_LABEL, XFLARE, XFLARE_LABEL, BFLARE_LOC, BFLARE_LABEL_LOC, CFLARE_LOC, CFLARE_LABEL_LOC, MFLARE_LOC, MFLARE_LABEL_LOC, XFLARE_LOC, XFLARE_LABEL_LOC
+
+5. Number of CSV instances in each partition:
+  partition1: 73492
+  partition2: 88557
+  partition3: 42510
+  partition4: 51261
+  partition5: 75365
+
+6. Number of rows per instance (sampled across 25000 instances):
+  Min: 60, Max: 60, Median: 60.0
+
+7. Min/Max/Median sequence length: ^ See above
+
+8. Timestamps consistently spaced at 12 minutes?
+  Found intervals (minutes): {np.float64(12.0)}
+
+9. Missing-value counts for each feature (out of 1500000 sampled total rows):
+  TOTUSJH: 4654
+  TOTBSQ: 4654
+  TOTPOT: 4654
+  TOTUSJZ: 4654
+  ABSNJZH: 4654
+  SAVNCPP: 4654
+  USFLUX: 4654
+  TOTFZ: 4654
+  MEANPOT: 13247
+  EPSZ: 13247
+  MEANSHR: 13247
+  SHRGT45: 13247
+  MEANGAM: 13254
+  MEANGBT: 13247
+  MEANGBZ: 13247
+  MEANGBH: 13247
+  MEANJZH: 13247
+  TOTFY: 4654
+  MEANJZD: 13247
+  MEANALP: 13247
+  TOTFX: 4654
+  EPSY: 13247
+  EPSX: 13247
+  R_VALUE: 4654
+
+10. Unique values for MFLARE_LABEL: {'M2.7@9109:Primary', 'M1.0@3640:Primary', 'M1.2@10878:Primary', 'M2.3@9255:Primary', 'M3.1@7330:Primary', 'M1.5@9423:Primary', 'M1.3@3363:Primary', 'M1.2@4636:Primary', 'M3.0@10607:Primary', 'M1.4@7567:Primary', 'M1.8@8415:Primary', 'M2.9@516:Primary', 'M1.8@4198:Primary', 'M1.0@7072:Primary', 'M1.0@6788:Primary', 'M1.8@11860:Primary', 'M4.4@13204:Primary', 'M1.0@11120:Primary', 'M4.7@4170:Primary', 'M3.3@6518:Primary', 'M5.1@6873:Primary', 'M1.0@7660:Primary', 'M1.0@11368:Primary', 'M3.2@3194:Primary', 'M1.4@6875:Primary', 'M1.0@4443:Primary', 'M5.6@10901:Primary', 'M3.5@6867:Secondary', 'M2.1@7965:Primary', 'M2.1@3379:Primary', 'M1.0@4192:Primary', 'M1.5@3043:Primary', 'M1.2@4166:Non-verified', 'M1.9@1402:Non-verified', 'M1.7@10715:Primary', 'M1.1@11154:Primary', 'M3.4@9164:Primary', 'M2.0@9234:Primary', 'M1.0@1534:Primary', 'M1.2@10285:Secondary', 'M1.4@13896:Primary', 'M1.4@10872:Primary', 'M1.0@10911:Primary', 'M3.7@7627:Primary', 'M5.7@13217:Primary', 'M5.6@4119:Primary', 'M1.9@5510:Primary', 'M6.1@9415:Primary', 'M2.4@3102:Primary', 'M1.4@13891:Primary', 'M1.1@7526:Primary', 'M1.8@8399:Primary', 'M1.1@1332:Primary', 'M1.8@2768:Primary', 'M9.9@7356:Primary', 'M1.1@4110:Primary', 'M1.3@7379:Primary', 'M1.1@2401:Primary', 'M3.7@1405:Primary', 'M2.9@4190:Primary', 'M2.1@9785:Primary', 'M1.7@7623:Primary', 'M1.0@6798:Primary', 'M1.8@4161:Primary', 'M1.2@4199:Secondary', 'M1.3@9633:Primary', 'M1.3@11160:Primary', 'M1.6@2378:Primary', 'M3.2@6045:Primary', 'M1.4@7830:Primary', 'M4.6@4164:Primary', 'M3.7@11417:Primary', 'M1.1@4240:Primary', 'M1.0@6938:Primary', 'M1.9@7269:Primary', 'M2.2@7540:Primary', 'M1.4@7646:Secondary', 'M3.0@7700:Primary', 'M2.4@6962:Primary', 'M1.3@5924:Primary', 'M1.1@11125:Primary', 'M1.4@9770:Primary', 'M1.9@4015:Primary', 'M2.4@9150:Primary', 'M2.0@9794:Primary', 'M2.3@6958:Primary', 'M1.1@7270:Primary', 'M1.1@7733:Primary', 'M1.9@3740:Primary', 'M4.4@7541:Primary', 'M1.0@5076:Primary', 'M1.6@9169:Primary', 'M1.0@7546:Secondary', 'M1.8@3361:Primary', 'M5.2@7564:Primary', 'M1.2@2770:Primary', 'M1.5@7571:Primary', 'M2.1@3935:Primary', 'M1.2@2564:Primary', 'M1.3@3965:Primary', 'M1.3@8320:Primary', 'M2.5@4969:Primary', 'M3.0@2512:Primary', 'M4.5@11171:Primary', 'M2.5@1892:Primary', 'M2.8@2511:Primary', 'M5.3@2381:Primary', 'M6.1@4177:Secondary', 'M2.4@4167:Primary', 'M1.0@9235:Primary', 'M1.0@5365:Primary', 'M3.1@7547:Primary', 'M1.5@6852:Primary', 'M1.3@9154:Primary', 'M1.4@3747:Primary', 'M1.1@1206:Secondary', 'M5.8@2513:Primary', 'M1.3@7549:Primary', 'M1.1@9625:Primary', 'M2.0@8804:Primary', 'M1.1@2086:Primary', 'M6.9@9529:Primary', 'M1.6@4186:Primary', 'M1.2@1683:Primary', 'M7.3@13897:Primary', 'M2.0@7599:Primary', 'M1.4@2773:Primary', 'M9.3@2124:Primary', 'M1.8@4176:Primary', 'M3.3@3921:Primary', 'M2.1@13216:Primary', 'M1.8@9391:Primary', 'M1.4@2723:Secondary', 'M1.0@10620:Primary', 'M1.4@11147:Primary', 'M6.4@7352:Primary', 'M1.3@8353:Primary', 'M2.2@4169:Primary', 'M1.7@9796:Primary', 'M1.0@9146:Primary', 'M1.8@1674:Primary', 'M1.0@11874:Primary', 'M5.1@8982:Primary', 'M1.5@3104:Primary', 'M1.2@7189:Primary', 'M1.9@9149:Primary', 'M3.2@9296:Primary', 'M4.0@3041:Primary', 'M1.6@11151:Primary', 'M1.0@7815:Primary', 'M1.3@9416:Primary', 'M1.0@3372:Primary', 'M2.4@13588:Primary', 'M1.1@4172:Primary', 'M1.4@6519:Primary', 'M1.2@9035:Primary', 'M1.0@7811:Primary', 'M3.9@11432:Primary', 'M1.2@13892:Secondary', 'M2.2@9053:Secondary', 'M1.2@9104:Secondary', 'M2.3@6972:Primary', 'M1.0@6131:Primary', 'M1.0@8450:Primary', 'M2.5@13890:Primary', 'M9.3@6813:Primary', 'M1.4@5955:Primary', 'M6.5@7994:Primary', 'M2.3@13884:Primary', 'M2.1@2754:Primary', 'M1.6@9492:Primary', 'M1.6@6915:Primary', 'M1.6@4187:Primary', 'M2.6@7943:Primary', 'M1.3@7543:Secondary', 'M1.9@11108:Primary', 'M1.6@7658:Primary', 'M1.1@11616:Primary', 'M1.4@8370:Primary', 'M1.0@11848:Primary', 'M7.6@11132:Primary', 'M1.2@8577:Primary', 'M1.0@4269:Primary', 'M1.1@7659:Primary', 'M1.1@4353:Primary', 'M1.1@9762:Primary', 'M1.1@11141:Primary', 'M1.9@7603:Primary', 'M2.9@11143:Primary', 'M1.0@7528:Primary', 'M1.3@3367:Primary', 'M1.0@265:Primary', 'M1.3@4204:Secondary', 'M2.3@7628:Primary', 'M6.5@8575:Primary', 'M3.1@2510:Primary', 'M1.3@13549:Primary', 'M1.3@10049:Primary', 'M5.4@673:Primary', 'M3.9@9088:Primary', 'M2.1@3360:Primary', 'M1.7@4243:Primary', 'M3.9@8805:Primary', 'M1.0@6861:Primary', 'M1.8@11636:Primary', 'M1.2@4178:Primary', 'M2.0@7940:Primary', 'M1.5@7597:Primary', 'M3.3@7275:Primary', 'M1.6@7279:Primary', 'M2.5@6931:Primary', 'M2.6@7539:Primary', 'M1.0@9153:Primary', 'M1.2@3369:Primary', 'M1.1@8886:Primary', 'M1.0@3377:Primary', 'M2.3@13213:Primary', 'M1.3@7585:Primary', 'M1.4@7025:Primary', 'M1.6@4099:Primary', 'M1.1@10874:Primary', 'M6.6@1175:Primary', 'M1.4@9095:Primary', 'M1.3@9532:Primary', 'M4.0@7381:Secondary', 'M1.3@7281:Primary', 'M1.1@7117:Primary', 'M1.2@9550:Primary', 'M4.2@9148:Primary', 'M1.0@8100:Primary', 'M4.5@9093:Primary', 'M2.1@11065:Primary', 'M1.1@11162:Primary', 'M3.5@5025:Primary', 'M2.3@6849:Primary', 'M1.8@7625:Primary', 'M1.2@13862:Primary', 'M2.3@3046:Primary', 'M2.8@4976:Primary', 'M1.6@5020:Primary', 'M7.3@8111:Primary', 'M1.3@1247:Primary', 'M1.6@1210:Primary', 'M1.4@2154:Primary', 'M2.0@4244:Primary', 'M1.9@2816:Primary', 'M1.1@2722:Secondary', 'M1.5@4196:Non-verified', 'M1.0@5813:Primary', 'M5.7@9305:Primary', 'M6.6@9165:Primary', 'M1.7@5382:Primary', 'M2.3@8964:Primary', 'M8.7@9515:Primary', 'M2.7@9233:Primary', 'M1.8@6853:Primary', 'M1.5@8926:Primary', 'M6.7@2390:Primary', 'M1.1@11130:Primary', 'M1.2@2380:Primary', 'M1.1@2163:Primary', 'M2.5@9231:Primary', 'M5.3@13211:Non-verified', 'M1.4@5022:Primary', 'M1.3@1449:Primary', 'M1.2@27:Primary', 'M1.1@2789:Primary', 'M1.0@7047:Primary', 'M7.1@2508:Primary', 'M1.0@7788:Primary', 'M1.2@13219:Primary', 'M7.1@9152:Primary', 'M1.0@11145:Primary'}
+    Unique values for XFLARE_LABEL: {'X9.3@13889:Primary', 'X1.3@13899:Primary', 'X1.0@9135:Primary', 'X1.1@9076:Primary', 'X1.6@9112:Primary', 'X1.2@7398:Primary', 'X3.1@9128:Primary', 'X1.0@6872:Primary', 'X3.3@6941:Primary', 'X1.8@2388:Primary', 'X1.9@2750:Primary', 'X1.1@4206:Primary', 'X1.4@4262:Primary', 'X1.6@9241:Primary', 'X2.1@2382:Primary'}
+
+11. How FL/non-flare instances are represented:
+    Instances are separated into folders: 'FL' (total count: 6234) and 'NF' (total count: 324951).
+    Filename also prefixes the label (e.g., M3.7@1405:Primary... or FQ_ar...).
+
+12. Whether data in SWAN/ corresponds to partition instance data:
+    SWAN/ contains 4098 files. (These are full active region files).
+    Sample SWAN file length: 917 rows.
+
+13. Exact mapping between partition folders and samples:
+    Each partition (e.g. partition1/partition1/) contains two subdirectories: FL/ (Flaring) and NF/ (Non-Flaring).
+    Each CSV inside these directories represents a single 60-timestep window for a specific Active Region.
+
+--- Findings vs Cmod Paper ---
+The 24 features identified exactly match the Space Weather HMI Active Region Patch (SHARP) parameters used by Cmod.

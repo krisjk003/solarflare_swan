@@ -1,0 +1,59 @@
+=== OFFICIAL CMOD ARCHITECTURE AUDIT ===
+
+1. EXACT OFFICIAL ARCHITECTURE
+- The architecture is a lightweight Convolutional Neural Network consisting of three Convolutional blocks followed by two Fully Connected layers and a final output layer. 
+- Input Shape: [batch_size, 24, 60] (24 time-series features over 60 timesteps).
+- Output Shape: [batch_size, 1] (Raw binary logits). We adapted the original 2-class softmax logit output into a 1-class raw logit to natively support BCEWithLogitsLoss.
+- Weight Initialization: `torch.nn.init.xavier_uniform_` is explicitly applied to all `Conv1d` and `Linear` layer weights.
+- Activation: `F.leaky_relu` is used throughout the entire network.
+
+2. CONV BLOCK 1
+- Layer: `nn.Conv1d`
+- Input Channels: 24
+- Output Channels/Filters: 2
+- Kernel Size: 9
+- Padding: 4 (ensures output length remains 60)
+- Bias: True
+- Batch Normalization: `nn.BatchNorm1d(2)`
+- Activation: LeakyReLU
+- Pooling: `nn.MaxPool1d(kernel_size=2, stride=2)` -> (length halves to 30)
+- Dropout: Layer Dropout `p=0.3` applied after pooling
+
+3. CONV BLOCK 2
+- Layer: `nn.Conv1d`
+- Input Channels: 2
+- Output Channels/Filters: 4
+- Kernel Size: 9
+- Padding: 4 (ensures output length remains 30)
+- Bias: True
+- Batch Normalization: `nn.BatchNorm1d(4)`
+- Activation: LeakyReLU
+- Pooling: `nn.MaxPool1d(kernel_size=2, stride=2)` -> (length halves to 15)
+- Dropout: Layer Dropout `p=0.3` applied after pooling
+
+4. CONV BLOCK 3
+- Layer: `nn.Conv1d`
+- Input Channels: 4
+- Output Channels/Filters: 8
+- Kernel Size: 9
+- Padding: 4 (ensures output length remains 15)
+- Bias: True
+- Batch Normalization: `nn.BatchNorm1d(8)`
+- Activation: LeakyReLU
+- Pooling: `nn.MaxPool1d(kernel_size=2, stride=2)` -> (length halves to 7)
+- Dropout: Layer Dropout `p=0.3` applied after pooling
+
+5. FLATTEN
+- Shape transitions from [batch, 8, 7] to [batch, 56]
+- The 56 represents the flattened features calculated as: `8 channels * 7 length = 56 in_features`
+
+6. FULLY CONNECTED LAYERS
+- FC 1: `nn.Linear(in_features=56, out_features=128)` -> LeakyReLU -> Dropout `p=0.3`
+- FC 2: `nn.Linear(in_features=128, out_features=32)` -> LeakyReLU -> Dropout `p=0.3`
+- Output Layer: `nn.Linear(in_features=32, out_features=1)`
+
+7. PARAMETER COUNT
+- Total Trainable Parameters: 12,291
+
+8. CUDA CAPABILITY
+- Fully capable. The architecture has been tested on a CUDA backend using `model.to("cuda")`. Forward and backward propagation runs successfully on the GPU.
