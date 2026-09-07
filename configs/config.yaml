@@ -4,9 +4,9 @@ data:
   sequence_length: 60  # e.g., 60 timesteps (12 hours of 12-min intervals)
   prediction_window: 12  # hours
   partitions: [1, 2, 3, 4, 5]
-  train_partitions: [1, 2]
-  val_partitions: [3]
-  test_partitions: [4, 5]
+  train_partitions: [1, 2, 3]
+  val_partitions: [4]
+  test_partitions: [5]
   missing_value_handling: "forward_fill"  # configurable strategy
   normalization: "standard" # standard, minmax, none
   class_balancing: "none" # SMOTE, weights, none

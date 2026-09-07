@@ -1,11 +1,16 @@
 import os
 import glob
+import re
 import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import Dataset, DataLoader
 
 from data.preprocess import TargetExtractor, remove_mostly_bad, official_nan_to_num, fit_minmax, transform_minmax, FEATURES
+
+def extract_ar_id(file_path):
+    match = re.search(r'ar(\d+)', os.path.basename(file_path))
+    return match.group(1) if match else None
 
 def _get_partition_files(data_dir, partitions):
     all_files = []
@@ -114,9 +119,18 @@ def prepare_data(data_dir, batch_size=64, num_workers=4, max_files=None, test_ma
     X_val, good_val_mask = remove_mostly_bad(X_val)
     y_val = y_val[good_val_mask]
     
-    # 3. Apply nan_to_num and extract fallback_mean from train
+    # 3. Apply NDBSR to train
+    print("Applying NDBSR to train...")
+    train_classes = np.array([TargetExtractor.extract_class(f) for f in selected_train_files])
+    ndbsr_mask = ~np.isin(train_classes, ['B', 'C'])
+    X_train = X_train[ndbsr_mask]
+    y_train = y_train[ndbsr_mask]
+    selected_train_files = selected_train_files[ndbsr_mask]
+
+    # Apply nan_to_num and extract fallback_mean from train
     print("Applying official_nan_to_num to train...")
     X_train, fallback_mean = official_nan_to_num(X_train)
+
     print("Applying official_nan_to_num to val...")
     X_val = official_nan_to_num(X_val, fallback_mean=fallback_mean)
     
@@ -127,6 +141,25 @@ def prepare_data(data_dir, batch_size=64, num_workers=4, max_files=None, test_ma
         idx = np.random.choice(len(test_files), test_max_files, replace=False)
         test_files = test_files[idx]
         
+    # Strict runtime assertion for Active Region (AR) disjointness across splits
+    train_ars = {extract_ar_id(f) for f in selected_train_files} - {None}
+    val_ars = {extract_ar_id(f) for f in val_files} - {None}
+    test_ars = {extract_ar_id(f) for f in test_files} - {None}
+
+    train_val_overlap = train_ars & val_ars
+    train_test_overlap = train_ars & test_ars
+    val_test_overlap = val_ars & test_ars
+
+    if train_val_overlap or train_test_overlap or val_test_overlap:
+        error_msgs = []
+        if train_val_overlap:
+            error_msgs.append(f"Train/Val overlap ({len(train_val_overlap)} ARs): {sorted(train_val_overlap)}")
+        if train_test_overlap:
+            error_msgs.append(f"Train/Test overlap ({len(train_test_overlap)} ARs): {sorted(train_test_overlap)}")
+        if val_test_overlap:
+            error_msgs.append(f"Val/Test overlap ({len(val_test_overlap)} ARs): {sorted(val_test_overlap)}")
+        raise AssertionError("Active Region (AR) disjointness violation detected:\n" + "\n".join(error_msgs))
+
     print(f"Loading {len(test_files)} test files into RAM...")
     X_test = load_files_to_matrix(test_files)
     y_test = np.array([TargetExtractor.extract_binary(f) for f in test_files])
@@ -139,7 +172,7 @@ def prepare_data(data_dir, batch_size=64, num_workers=4, max_files=None, test_ma
     print("Applying official_nan_to_num to test...")
     X_test = official_nan_to_num(X_test, fallback_mean=fallback_mean)
     
-    # 6. Fit Min-Max normalizer on TRAIN ONLY
+    # 6. Fit Min-Max normalizer on TRAIN ONLY (now NDBSR-filtered, avoiding normalization leakage)
     print("Fitting Min-Max normalizer on train...")
     X_min, X_max = fit_minmax(X_train)
     X_train = transform_minmax(X_train, X_min, X_max)
@@ -148,13 +181,6 @@ def prepare_data(data_dir, batch_size=64, num_workers=4, max_files=None, test_ma
     print("Transforming val and test...")
     X_val = transform_minmax(X_val, X_min, X_max)
     X_test = transform_minmax(X_test, X_min, X_max)
-    
-    # 9. Apply NDBSR to training data ONLY
-    print("Applying NDBSR to train...")
-    train_classes = np.array([TargetExtractor.extract_class(f) for f in selected_train_files])
-    ndbsr_mask = ~np.isin(train_classes, ['B', 'C'])
-    X_train = X_train[ndbsr_mask]
-    y_train = y_train[ndbsr_mask]
     
     print("Data preparation complete.")
     

@@ -1,14 +1,14 @@
 === Cmod Final Evaluation on P5 ===
-Best Validation TSS: 0.8779810319939526
-Best Epoch: 26
-Selected Decision Threshold (from P4): 0.8300
+Best Validation TSS: 0.8757118159186341
+Best Epoch: 18
+Selected Decision Threshold (from P4): 0.5400
 Total Test Samples: 75113
 Positive Samples (M/X): 990
 Negative Samples (Q/B/C): 74123
-P5 TSS: 0.8617
-P5 AUC: 0.9781
-P5 Precision: 0.1648
-P5 Recall: 0.9242
-P5 F1: 0.2798
-TP: 915, TN: 69487, FP: 4636, FN: 75
-Evaluation Time: 1.85 seconds
+P5 TSS: 0.8685
+P5 AUC: 0.9747
+P5 Precision: 0.1765
+P5 Recall: 0.9263
+P5 F1: 0.2965
+TP: 917, TN: 69845, FP: 4278, FN: 73
+Evaluation Time: 2.00 seconds

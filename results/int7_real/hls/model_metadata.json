@@ -1,0 +1,501 @@
+{
+  "model_name": "CustomCNN1D_INT7",
+  "target": "Vivado HLS",
+  "numerical_format": {
+    "weight_bits": 7,
+    "activation_bits": 7,
+    "bias_bits": 32,
+    "accumulator_bits": 32,
+    "signed": true,
+    "qmin": -64,
+    "qmax": 63,
+    "zero_point": 0
+  },
+  "input_dimensions": [
+    24,
+    60
+  ],
+  "input_scale": 0.016895338892936707,
+  "layers": [
+    {
+      "layer_name": "b1_dw",
+      "operation_type": "DepthwiseConv1d",
+      "input_dimensions": [
+        24,
+        60
+      ],
+      "output_dimensions": [
+        24,
+        60
+      ],
+      "input_channels": 24,
+      "output_channels": 24,
+      "kernel_size": 3,
+      "stride": 1,
+      "padding": 1,
+      "dilation": 1,
+      "groups": 24,
+      "input_scale": 0.016895338892936707,
+      "weight_scale": 0.023621147498488426,
+      "output_scale": 0.048613447695970535,
+      "multiplier": 17629554,
+      "shift": 31,
+      "bias_info": {
+        "has_bias": false,
+        "dtype": null,
+        "size": 0
+      }
+    },
+    {
+      "layer_name": "b1_pw",
+      "operation_type": "PointwiseConv1d",
+      "input_dimensions": [
+        24,
+        60
+      ],
+      "output_dimensions": [
+        24,
+        60
+      ],
+      "input_channels": 24,
+      "output_channels": 24,
+      "kernel_size": 1,
+      "stride": 1,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 1,
+      "input_scale": 0.048613447695970535,
+      "weight_scale": 0.0933670774102211,
+      "output_scale": 0.1698630452156067,
+      "multiplier": 57382724,
+      "shift": 31,
+      "bias_info": {
+        "has_bias": true,
+        "dtype": "ap_int<32>",
+        "size": 24
+      }
+    },
+    {
+      "layer_name": "b1_relu",
+      "operation_type": "ReLU",
+      "input_dimensions": [
+        24,
+        60
+      ],
+      "output_dimensions": [
+        24,
+        60
+      ]
+    },
+    {
+      "layer_name": "b1_pool",
+      "operation_type": "MaxPool1d",
+      "input_dimensions": [
+        24,
+        60
+      ],
+      "output_dimensions": [
+        24,
+        30
+      ],
+      "input_channels": 24,
+      "output_channels": 24,
+      "kernel_size": 2,
+      "stride": 2,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 24,
+      "bias_info": {
+        "has_bias": false,
+        "size": 0
+      }
+    },
+    {
+      "layer_name": "b2_dw",
+      "operation_type": "DepthwiseConv1d",
+      "input_dimensions": [
+        24,
+        30
+      ],
+      "output_dimensions": [
+        24,
+        30
+      ],
+      "input_channels": 24,
+      "output_channels": 24,
+      "kernel_size": 3,
+      "stride": 1,
+      "padding": 1,
+      "dilation": 1,
+      "groups": 24,
+      "input_scale": 0.09297536313533783,
+      "weight_scale": 0.01792517490684986,
+      "output_scale": 0.12129470705986023,
+      "multiplier": 29506610,
+      "shift": 31,
+      "bias_info": {
+        "has_bias": false,
+        "dtype": null,
+        "size": 0
+      }
+    },
+    {
+      "layer_name": "b2_pw",
+      "operation_type": "PointwiseConv1d",
+      "input_dimensions": [
+        24,
+        30
+      ],
+      "output_dimensions": [
+        32,
+        30
+      ],
+      "input_channels": 24,
+      "output_channels": 32,
+      "kernel_size": 1,
+      "stride": 1,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 1,
+      "input_scale": 0.12129470705986023,
+      "weight_scale": 0.04359831660985947,
+      "output_scale": 0.23579266667366028,
+      "multiplier": 48162736,
+      "shift": 31,
+      "bias_info": {
+        "has_bias": true,
+        "dtype": "ap_int<32>",
+        "size": 32
+      }
+    },
+    {
+      "layer_name": "b2_relu",
+      "operation_type": "ReLU",
+      "input_dimensions": [
+        32,
+        30
+      ],
+      "output_dimensions": [
+        32,
+        30
+      ]
+    },
+    {
+      "layer_name": "b2_pool",
+      "operation_type": "MaxPool1d",
+      "input_dimensions": [
+        32,
+        30
+      ],
+      "output_dimensions": [
+        32,
+        15
+      ],
+      "input_channels": 32,
+      "output_channels": 32,
+      "kernel_size": 2,
+      "stride": 2,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 32,
+      "bias_info": {
+        "has_bias": false,
+        "size": 0
+      }
+    },
+    {
+      "layer_name": "b3_dw",
+      "operation_type": "DepthwiseConv1d",
+      "input_dimensions": [
+        32,
+        15
+      ],
+      "output_dimensions": [
+        32,
+        15
+      ],
+      "input_channels": 32,
+      "output_channels": 32,
+      "kernel_size": 3,
+      "stride": 1,
+      "padding": 1,
+      "dilation": 1,
+      "groups": 32,
+      "input_scale": 0.23579266667366028,
+      "weight_scale": 0.024425186216831207,
+      "output_scale": 0.35408052802085876,
+      "multiplier": 34929792,
+      "shift": 31,
+      "bias_info": {
+        "has_bias": false,
+        "dtype": null,
+        "size": 0
+      }
+    },
+    {
+      "layer_name": "b3_pw",
+      "operation_type": "PointwiseConv1d",
+      "input_dimensions": [
+        32,
+        15
+      ],
+      "output_dimensions": [
+        64,
+        15
+      ],
+      "input_channels": 32,
+      "output_channels": 64,
+      "kernel_size": 1,
+      "stride": 1,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 1,
+      "input_scale": 0.35408052802085876,
+      "weight_scale": 0.01694292202591896,
+      "output_scale": 0.4014098644256592,
+      "multiplier": 32094614,
+      "shift": 31,
+      "bias_info": {
+        "has_bias": true,
+        "dtype": "ap_int<32>",
+        "size": 64
+      }
+    },
+    {
+      "layer_name": "b3_relu",
+      "operation_type": "ReLU",
+      "input_dimensions": [
+        64,
+        15
+      ],
+      "output_dimensions": [
+        64,
+        15
+      ]
+    },
+    {
+      "layer_name": "b3_pool",
+      "operation_type": "MaxPool1d",
+      "input_dimensions": [
+        64,
+        15
+      ],
+      "output_dimensions": [
+        64,
+        7
+      ],
+      "input_channels": 64,
+      "output_channels": 64,
+      "kernel_size": 2,
+      "stride": 2,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 64,
+      "bias_info": {
+        "has_bias": false,
+        "size": 0
+      }
+    },
+    {
+      "layer_name": "b4_dw",
+      "operation_type": "DepthwiseConv1d",
+      "input_dimensions": [
+        64,
+        7
+      ],
+      "output_dimensions": [
+        64,
+        7
+      ],
+      "input_channels": 64,
+      "output_channels": 64,
+      "kernel_size": 3,
+      "stride": 1,
+      "padding": 1,
+      "dilation": 1,
+      "groups": 64,
+      "input_scale": 0.4014098644256592,
+      "weight_scale": 0.026250207796692848,
+      "output_scale": 0.4453808069229126,
+      "multiplier": 50806488,
+      "shift": 31,
+      "bias_info": {
+        "has_bias": false,
+        "dtype": null,
+        "size": 0
+      }
+    },
+    {
+      "layer_name": "b4_pw",
+      "operation_type": "PointwiseConv1d",
+      "input_dimensions": [
+        64,
+        7
+      ],
+      "output_dimensions": [
+        128,
+        7
+      ],
+      "input_channels": 64,
+      "output_channels": 128,
+      "kernel_size": 1,
+      "stride": 1,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 1,
+      "input_scale": 0.4453808069229126,
+      "weight_scale": 0.005282015539705753,
+      "output_scale": 0.24440649151802063,
+      "multiplier": 20670372,
+      "shift": 31,
+      "bias_info": {
+        "has_bias": true,
+        "dtype": "ap_int<32>",
+        "size": 128
+      }
+    },
+    {
+      "layer_name": "b4_relu",
+      "operation_type": "ReLU",
+      "input_dimensions": [
+        128,
+        7
+      ],
+      "output_dimensions": [
+        128,
+        7
+      ]
+    },
+    {
+      "layer_name": "mean_pool",
+      "operation_type": "GlobalMeanPool",
+      "input_dimensions": [
+        128,
+        7
+      ],
+      "output_dimensions": [
+        128
+      ],
+      "input_channels": 128,
+      "output_channels": 128,
+      "kernel_size": 7,
+      "stride": 7,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 128,
+      "input_scale": 0.24440649151802063,
+      "output_scale": 0.24440649151802063,
+      "multiplier": 306783360,
+      "shift": 31,
+      "bias_info": {
+        "has_bias": false,
+        "size": 0
+      }
+    },
+    {
+      "layer_name": "global_max_pool",
+      "operation_type": "GlobalMaxPool",
+      "input_dimensions": [
+        128,
+        7
+      ],
+      "output_dimensions": [
+        128
+      ],
+      "input_channels": 128,
+      "output_channels": 128,
+      "kernel_size": 7,
+      "stride": 7,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 128,
+      "multiplier": 1073741824,
+      "shift": 30,
+      "bias_info": {
+        "has_bias": false,
+        "size": 0
+      }
+    },
+    {
+      "layer_name": "concat_mean_max",
+      "operation_type": "Concatenate",
+      "input_dimensions": [
+        [
+          128
+        ],
+        [
+          128
+        ]
+      ],
+      "output_dimensions": [
+        256
+      ],
+      "input_channels": 256,
+      "output_channels": 256
+    },
+    {
+      "layer_name": "fc1",
+      "operation_type": "Linear",
+      "input_dimensions": [
+        256
+      ],
+      "output_dimensions": [
+        32
+      ],
+      "input_channels": 256,
+      "output_channels": 32,
+      "kernel_size": 1,
+      "stride": 1,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 1,
+      "input_scale": 0.24440649151802063,
+      "weight_scale": 0.020242460072040558,
+      "output_scale": 2.991381883621216,
+      "multiplier": 3551682,
+      "shift": 31,
+      "bias_info": {
+        "has_bias": true,
+        "dtype": "ap_int<32>",
+        "size": 32
+      }
+    },
+    {
+      "layer_name": "fc1_relu",
+      "operation_type": "ReLU",
+      "input_dimensions": [
+        32
+      ],
+      "output_dimensions": [
+        32
+      ]
+    },
+    {
+      "layer_name": "fc2",
+      "operation_type": "Linear",
+      "input_dimensions": [
+        32
+      ],
+      "output_dimensions": [
+        1
+      ],
+      "input_channels": 32,
+      "output_channels": 1,
+      "kernel_size": 1,
+      "stride": 1,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 1,
+      "input_scale": 1.1790305376052856,
+      "weight_scale": 0.006388363428413868,
+      "output_scale": 0.900689959526062,
+      "multiplier": 17958464,
+      "shift": 31,
+      "bias_info": {
+        "has_bias": true,
+        "dtype": "ap_int<32>",
+        "size": 1
+      }
+    }
+  ]
+}

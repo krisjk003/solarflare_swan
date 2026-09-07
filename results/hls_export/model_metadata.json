@@ -1,0 +1,501 @@
+{
+  "model_name": "CustomCNN1D_INT7",
+  "target": "Vivado HLS",
+  "numerical_format": {
+    "weight_bits": 7,
+    "activation_bits": 7,
+    "bias_bits": 32,
+    "accumulator_bits": 32,
+    "signed": true,
+    "qmin": -64,
+    "qmax": 63,
+    "zero_point": 0
+  },
+  "input_dimensions": [
+    24,
+    60
+  ],
+  "input_scale": 1.0,
+  "layers": [
+    {
+      "layer_name": "b1_dw",
+      "operation_type": "DepthwiseConv1d",
+      "input_dimensions": [
+        24,
+        60
+      ],
+      "output_dimensions": [
+        24,
+        60
+      ],
+      "input_channels": 24,
+      "output_channels": 24,
+      "kernel_size": 3,
+      "stride": 1,
+      "padding": 1,
+      "dilation": 1,
+      "groups": 24,
+      "input_scale": 1.0,
+      "weight_scale": 1.0,
+      "output_scale": 1.0,
+      "multiplier": 0,
+      "shift": 0,
+      "bias_info": {
+        "has_bias": false,
+        "dtype": null,
+        "size": 0
+      }
+    },
+    {
+      "layer_name": "b1_pw",
+      "operation_type": "PointwiseConv1d",
+      "input_dimensions": [
+        24,
+        60
+      ],
+      "output_dimensions": [
+        24,
+        60
+      ],
+      "input_channels": 24,
+      "output_channels": 24,
+      "kernel_size": 1,
+      "stride": 1,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 1,
+      "input_scale": 1.0,
+      "weight_scale": 1.0,
+      "output_scale": 1.0,
+      "multiplier": 0,
+      "shift": 0,
+      "bias_info": {
+        "has_bias": true,
+        "dtype": "ap_int<32>",
+        "size": 24
+      }
+    },
+    {
+      "layer_name": "b1_relu",
+      "operation_type": "ReLU",
+      "input_dimensions": [
+        24,
+        60
+      ],
+      "output_dimensions": [
+        24,
+        60
+      ]
+    },
+    {
+      "layer_name": "b1_pool",
+      "operation_type": "MaxPool1d",
+      "input_dimensions": [
+        24,
+        60
+      ],
+      "output_dimensions": [
+        24,
+        30
+      ],
+      "input_channels": 24,
+      "output_channels": 24,
+      "kernel_size": 2,
+      "stride": 2,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 24,
+      "bias_info": {
+        "has_bias": false,
+        "size": 0
+      }
+    },
+    {
+      "layer_name": "b2_dw",
+      "operation_type": "DepthwiseConv1d",
+      "input_dimensions": [
+        24,
+        30
+      ],
+      "output_dimensions": [
+        24,
+        30
+      ],
+      "input_channels": 24,
+      "output_channels": 24,
+      "kernel_size": 3,
+      "stride": 1,
+      "padding": 1,
+      "dilation": 1,
+      "groups": 24,
+      "input_scale": 1.0,
+      "weight_scale": 1.0,
+      "output_scale": 1.0,
+      "multiplier": 0,
+      "shift": 0,
+      "bias_info": {
+        "has_bias": false,
+        "dtype": null,
+        "size": 0
+      }
+    },
+    {
+      "layer_name": "b2_pw",
+      "operation_type": "PointwiseConv1d",
+      "input_dimensions": [
+        24,
+        30
+      ],
+      "output_dimensions": [
+        32,
+        30
+      ],
+      "input_channels": 24,
+      "output_channels": 32,
+      "kernel_size": 1,
+      "stride": 1,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 1,
+      "input_scale": 1.0,
+      "weight_scale": 1.0,
+      "output_scale": 1.0,
+      "multiplier": 0,
+      "shift": 0,
+      "bias_info": {
+        "has_bias": true,
+        "dtype": "ap_int<32>",
+        "size": 32
+      }
+    },
+    {
+      "layer_name": "b2_relu",
+      "operation_type": "ReLU",
+      "input_dimensions": [
+        32,
+        30
+      ],
+      "output_dimensions": [
+        32,
+        30
+      ]
+    },
+    {
+      "layer_name": "b2_pool",
+      "operation_type": "MaxPool1d",
+      "input_dimensions": [
+        32,
+        30
+      ],
+      "output_dimensions": [
+        32,
+        15
+      ],
+      "input_channels": 32,
+      "output_channels": 32,
+      "kernel_size": 2,
+      "stride": 2,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 32,
+      "bias_info": {
+        "has_bias": false,
+        "size": 0
+      }
+    },
+    {
+      "layer_name": "b3_dw",
+      "operation_type": "DepthwiseConv1d",
+      "input_dimensions": [
+        32,
+        15
+      ],
+      "output_dimensions": [
+        32,
+        15
+      ],
+      "input_channels": 32,
+      "output_channels": 32,
+      "kernel_size": 3,
+      "stride": 1,
+      "padding": 1,
+      "dilation": 1,
+      "groups": 32,
+      "input_scale": 1.0,
+      "weight_scale": 1.0,
+      "output_scale": 1.0,
+      "multiplier": 0,
+      "shift": 0,
+      "bias_info": {
+        "has_bias": false,
+        "dtype": null,
+        "size": 0
+      }
+    },
+    {
+      "layer_name": "b3_pw",
+      "operation_type": "PointwiseConv1d",
+      "input_dimensions": [
+        32,
+        15
+      ],
+      "output_dimensions": [
+        64,
+        15
+      ],
+      "input_channels": 32,
+      "output_channels": 64,
+      "kernel_size": 1,
+      "stride": 1,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 1,
+      "input_scale": 1.0,
+      "weight_scale": 1.0,
+      "output_scale": 1.0,
+      "multiplier": 0,
+      "shift": 0,
+      "bias_info": {
+        "has_bias": true,
+        "dtype": "ap_int<32>",
+        "size": 64
+      }
+    },
+    {
+      "layer_name": "b3_relu",
+      "operation_type": "ReLU",
+      "input_dimensions": [
+        64,
+        15
+      ],
+      "output_dimensions": [
+        64,
+        15
+      ]
+    },
+    {
+      "layer_name": "b3_pool",
+      "operation_type": "MaxPool1d",
+      "input_dimensions": [
+        64,
+        15
+      ],
+      "output_dimensions": [
+        64,
+        7
+      ],
+      "input_channels": 64,
+      "output_channels": 64,
+      "kernel_size": 2,
+      "stride": 2,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 64,
+      "bias_info": {
+        "has_bias": false,
+        "size": 0
+      }
+    },
+    {
+      "layer_name": "b4_dw",
+      "operation_type": "DepthwiseConv1d",
+      "input_dimensions": [
+        64,
+        7
+      ],
+      "output_dimensions": [
+        64,
+        7
+      ],
+      "input_channels": 64,
+      "output_channels": 64,
+      "kernel_size": 3,
+      "stride": 1,
+      "padding": 1,
+      "dilation": 1,
+      "groups": 64,
+      "input_scale": 1.0,
+      "weight_scale": 1.0,
+      "output_scale": 1.0,
+      "multiplier": 0,
+      "shift": 0,
+      "bias_info": {
+        "has_bias": false,
+        "dtype": null,
+        "size": 0
+      }
+    },
+    {
+      "layer_name": "b4_pw",
+      "operation_type": "PointwiseConv1d",
+      "input_dimensions": [
+        64,
+        7
+      ],
+      "output_dimensions": [
+        128,
+        7
+      ],
+      "input_channels": 64,
+      "output_channels": 128,
+      "kernel_size": 1,
+      "stride": 1,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 1,
+      "input_scale": 1.0,
+      "weight_scale": 1.0,
+      "output_scale": 1.0,
+      "multiplier": 0,
+      "shift": 0,
+      "bias_info": {
+        "has_bias": true,
+        "dtype": "ap_int<32>",
+        "size": 128
+      }
+    },
+    {
+      "layer_name": "b4_relu",
+      "operation_type": "ReLU",
+      "input_dimensions": [
+        128,
+        7
+      ],
+      "output_dimensions": [
+        128,
+        7
+      ]
+    },
+    {
+      "layer_name": "mean_pool",
+      "operation_type": "GlobalMeanPool",
+      "input_dimensions": [
+        128,
+        7
+      ],
+      "output_dimensions": [
+        128
+      ],
+      "input_channels": 128,
+      "output_channels": 128,
+      "kernel_size": 7,
+      "stride": 7,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 128,
+      "input_scale": 1.0,
+      "output_scale": 1.0,
+      "multiplier": 0,
+      "shift": 0,
+      "bias_info": {
+        "has_bias": false,
+        "size": 0
+      }
+    },
+    {
+      "layer_name": "global_max_pool",
+      "operation_type": "GlobalMaxPool",
+      "input_dimensions": [
+        128,
+        7
+      ],
+      "output_dimensions": [
+        128
+      ],
+      "input_channels": 128,
+      "output_channels": 128,
+      "kernel_size": 7,
+      "stride": 7,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 128,
+      "multiplier": 0,
+      "shift": 0,
+      "bias_info": {
+        "has_bias": false,
+        "size": 0
+      }
+    },
+    {
+      "layer_name": "concat_mean_max",
+      "operation_type": "Concatenate",
+      "input_dimensions": [
+        [
+          128
+        ],
+        [
+          128
+        ]
+      ],
+      "output_dimensions": [
+        256
+      ],
+      "input_channels": 256,
+      "output_channels": 256
+    },
+    {
+      "layer_name": "fc1",
+      "operation_type": "Linear",
+      "input_dimensions": [
+        256
+      ],
+      "output_dimensions": [
+        32
+      ],
+      "input_channels": 256,
+      "output_channels": 32,
+      "kernel_size": 1,
+      "stride": 1,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 1,
+      "input_scale": 1.0,
+      "weight_scale": 1.0,
+      "output_scale": 1.0,
+      "multiplier": 0,
+      "shift": 0,
+      "bias_info": {
+        "has_bias": true,
+        "dtype": "ap_int<32>",
+        "size": 32
+      }
+    },
+    {
+      "layer_name": "fc1_relu",
+      "operation_type": "ReLU",
+      "input_dimensions": [
+        32
+      ],
+      "output_dimensions": [
+        32
+      ]
+    },
+    {
+      "layer_name": "fc2",
+      "operation_type": "Linear",
+      "input_dimensions": [
+        32
+      ],
+      "output_dimensions": [
+        1
+      ],
+      "input_channels": 32,
+      "output_channels": 1,
+      "kernel_size": 1,
+      "stride": 1,
+      "padding": 0,
+      "dilation": 1,
+      "groups": 1,
+      "input_scale": 1.0,
+      "weight_scale": 1.0,
+      "output_scale": 1.0,
+      "multiplier": 0,
+      "shift": 0,
+      "bias_info": {
+        "has_bias": true,
+        "dtype": "ap_int<32>",
+        "size": 1
+      }
+    }
+  ]
+}

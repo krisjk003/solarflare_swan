@@ -1,0 +1,30 @@
+=================================================================
+             REAL INT7 EVALUATION ON FULL PARTITION 5            
+=================================================================
+Calibration Partitions: 1,2,3
+Calibration Samples Used: 1000
+Selected Decision Threshold (frozen from P4): 0.8300
+Total P5 Test Samples: 75113
+Positive Samples (M/X): 990
+Negative Samples (Q/B/C): 74123
+INT7 P5 TSS: 0.0000
+INT7 P5 AUC: 0.8357
+INT7 P5 Precision: 0.0000
+INT7 P5 Recall: 0.0000
+INT7 P5 F1: 0.0000
+TP: 0, TN: 74123, FP: 0, FN: 990
+INT7 P5 Inference Time: 23.86 seconds
+=================================================================
+                  INT7 vs FP32 BASELINE COMPARISON               
+=================================================================
+FP32 Baseline TSS: 0.8617
+INT7 Quantized TSS: 0.0000
+TSS Delta (INT7 - FP32): -0.8617
+FP32 Baseline AUC: 0.9781 | INT7 AUC: 0.8357 (Delta: -0.1424)
+FP32 Precision:    0.1648 | INT7 Precision: 0.0000
+FP32 Recall:       0.9242 | INT7 Recall:    0.0000
+FP32 F1 Score:     0.2798 | INT7 F1 Score:  0.0000
+Confusion Matrix Comparison:
+  FP32: TP=915, TN=69487, FP=4636, FN=75
+  INT7: TP=0, TN=74123, FP=0, FN=990
+=================================================================
