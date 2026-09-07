@@ -17,9 +17,9 @@ model:
   num_classes: 2
 
 quantization:
-  precision: "fp32" # fp32, int8, int7
-  int7_min: -64
-  int7_max: 63
+  precision: "fp32" # fp32, int8
+  int8_min: -128
+  int8_max: 127
 
 training:
   batch_size: 32

@@ -9,13 +9,14 @@ import torch.nn.functional as F
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from models.quantization import (
-    quantize_int7, dequantize_int7, calculate_symmetric_scale,
+    quantize_int8, dequantize_int8, calculate_symmetric_scale,
     quantize_bias_int32, requantize, IntegerConv1d, IntegerLinear,
-    IntegerReLU, IntegerMaxPool1d, IntegerMeanPool, compute_multiplier_shift
+    IntegerReLU, IntegerMaxPool1d, IntegerMeanPool, compute_multiplier_shift,
+    quantize_int7, dequantize_int7
 )
-from models.custom_cnn1d_int7 import CustomCNN1D_INT7
+from models.custom_cnn1d_int8 import CustomCNN1D_INT8, CustomCNN1D_INT7
 from models.custom_cnn1d import CustomCNN1D
-from scripts.quantize import build_fused_fp32_model, run_calibration, convert_to_int7, prepare_calibration_data
+from scripts.quantize import build_fused_fp32_model, run_calibration, convert_to_int8, convert_to_int7, prepare_calibration_data
 from scripts.export_hls import export_hls_from_model
 
 class TestIntegerOperators(unittest.TestCase):
@@ -28,16 +29,13 @@ class TestIntegerOperators(unittest.TestCase):
         # pos 1: 20*2 + 30*3 = 40 + 90 = 130
         # pos 2: 30*2 + 40*3 = 60 + 120 = 180
         conv = IntegerConv1d(in_channels=1, out_channels=1, kernel_size=2, stride=1, padding=0, bias=False)
-        conv.weight_int7.data = torch.tensor([[[2, 3]]], dtype=torch.int8)
+        conv.weight_int8.data = torch.tensor([[[2, 3]]], dtype=torch.int8)
         # Identity requantization: multiplier=1, shift=0
         conv.multiplier.data = torch.tensor(1, dtype=torch.int32)
         conv.shift.data = torch.tensor(0, dtype=torch.int32)
         
         x = torch.tensor([[[10, 20, 30, 40]]], dtype=torch.int8)
-        out = conv(x)
-        # Since output clamps to 63, let's use a scale factor or test accumulator directly
-        # With multiplier=1, shift=1: 80>>1=40, 130>>1=65->clamped 63, etc.
-        # Or with multiplier=1, shift=2:
+        # With multiplier=1, shift=2:
         # 80/4 = 20, 130/4 = 32.5 (rounded 33), 180/4 = 45
         conv.shift.data = torch.tensor(2, dtype=torch.int32)
         out = conv(x)
@@ -50,7 +48,7 @@ class TestIntegerOperators(unittest.TestCase):
         # Row 0: 2*1 + (-3)*2 + 4*3 = 2 - 6 + 12 = 8
         # Row 1: 2*(-2) + (-3)*0 + 4*1 = -4 + 0 + 4 = 0
         linear = IntegerLinear(in_features=3, out_features=2, bias=False)
-        linear.weight_int7.data = torch.tensor([[1, 2, 3], [-2, 0, 1]], dtype=torch.int8)
+        linear.weight_int8.data = torch.tensor([[1, 2, 3], [-2, 0, 1]], dtype=torch.int8)
         linear.multiplier.data = torch.tensor(1, dtype=torch.int32)
         linear.shift.data = torch.tensor(0, dtype=torch.int32)
         
@@ -60,19 +58,19 @@ class TestIntegerOperators(unittest.TestCase):
         self.assertEqual(out.dtype, torch.int8)
 
     def test_3_integer_maxpool_reference(self):
-        # Input: B=1, C=1, L=6: [-5, 12, 63, -64, 0, 3]
-        # kernel_size=2, stride=2 -> max(-5, 12)=12, max(63, -64)=63, max(0, 3)=3
+        # Input: B=1, C=1, L=6: [-5, 12, 127, -128, 0, 3]
+        # kernel_size=2, stride=2 -> max(-5, 12)=12, max(127, -128)=127, max(0, 3)=3
         pool = IntegerMaxPool1d(kernel_size=2, stride=2)
-        x = torch.tensor([[[-5, 12, 63, -64, 0, 3]]], dtype=torch.int8)
+        x = torch.tensor([[[-5, 12, 127, -128, 0, 3]]], dtype=torch.int8)
         out = pool(x)
-        self.assertEqual(out.tolist(), [[[12, 63, 3]]])
+        self.assertEqual(out.tolist(), [[[12, 127, 3]]])
         self.assertEqual(out.dtype, torch.int8)
 
     def test_4_int32_bias_addition(self):
         # Conv with bias: acc = 80, bias = 100 -> acc = 180
         # shift=2 -> round(180/4) = 45
         conv = IntegerConv1d(in_channels=1, out_channels=1, kernel_size=2, stride=1, padding=0, bias=True)
-        conv.weight_int7.data = torch.tensor([[[2, 3]]], dtype=torch.int8)
+        conv.weight_int8.data = torch.tensor([[[2, 3]]], dtype=torch.int8)
         conv.bias_int32.data = torch.tensor([100], dtype=torch.int32)
         conv.multiplier.data = torch.tensor(1, dtype=torch.int32)
         conv.shift.data = torch.tensor(2, dtype=torch.int32)
@@ -83,14 +81,14 @@ class TestIntegerOperators(unittest.TestCase):
         self.assertEqual(out.item(), 45)
 
     def test_5_requantization_correctness(self):
-        # Check clamping to [-64, 63]
+        # Check clamping to [-128, 127]
         acc_pos = torch.tensor([1000], dtype=torch.int32)
         out_pos = requantize(acc_pos, multiplier=1, shift=0)
-        self.assertEqual(out_pos.item(), 63)
+        self.assertEqual(out_pos.item(), 127)
         
         acc_neg = torch.tensor([-1000], dtype=torch.int32)
         out_neg = requantize(acc_neg, multiplier=1, shift=0)
-        self.assertEqual(out_neg.item(), -64)
+        self.assertEqual(out_neg.item(), -128)
         
         # Check round-to-nearest with shift
         # 5 >> 1 with rounding: (5 + 1) >> 1 = 3
@@ -102,9 +100,9 @@ class TestIntegerOperators(unittest.TestCase):
         # Depthwise conv with groups=24
         # Channel c must only depend on input channel c
         conv = IntegerConv1d(in_channels=24, out_channels=24, kernel_size=3, padding=1, groups=24, bias=False)
-        conv.weight_int7.data.fill_(0)
+        conv.weight_int8.data.fill_(0)
         # Set channel 5 weight to 1
-        conv.weight_int7.data[5, 0, 1] = 1 # center tap
+        conv.weight_int8.data[5, 0, 1] = 1 # center tap
         conv.multiplier.data = torch.tensor(1, dtype=torch.int32)
         conv.shift.data = torch.tensor(0, dtype=torch.int32)
         
@@ -116,16 +114,16 @@ class TestIntegerOperators(unittest.TestCase):
         self.assertTrue(torch.all(out[0, 5, :] == 42))
         self.assertTrue(torch.all(out[0, 3, :] == 0))
 
-    def test_7_end_to_end_custom_cnn1d_int7(self):
-        model = CustomCNN1D_INT7(in_channels=24)
-        x = torch.randint(-64, 63, (2, 24, 60), dtype=torch.int8)
+    def test_7_end_to_end_custom_cnn1d_int8(self):
+        model = CustomCNN1D_INT8(in_channels=24)
+        x = torch.randint(-128, 127, (2, 24, 60), dtype=torch.int8)
         out = model(x)
         self.assertEqual(out.shape, (2, 1))
         self.assertEqual(out.dtype, torch.int8)
-        self.assertTrue((out >= -64).all() and (out <= 63).all())
+        self.assertTrue((out >= -128).all() and (out <= 127).all())
 
     def test_8_hls_metadata_completeness(self):
-        model = CustomCNN1D_INT7(in_channels=24)
+        model = CustomCNN1D_INT8(in_channels=24)
         header_path, json_path = export_hls_from_model(model, out_dir="results/hls_export")
         self.assertTrue(os.path.exists(header_path))
         self.assertTrue(os.path.exists(json_path))
@@ -133,7 +131,7 @@ class TestIntegerOperators(unittest.TestCase):
         with open(json_path, "r") as jf:
             meta = json.load(jf)
             
-        self.assertEqual(meta["model_name"], "CustomCNN1D_INT7")
+        self.assertEqual(meta["model_name"], "CustomCNN1D_INT8")
         self.assertEqual(meta["input_dimensions"], [24, 60])
         self.assertIn("layers", meta)
         
@@ -158,11 +156,20 @@ class TestIntegerOperators(unittest.TestCase):
         with patch('torch.nn.functional.conv1d', side_effect=RuntimeError("F.conv1d called!")):
             with patch('torch.nn.functional.linear', side_effect=RuntimeError("F.linear called!")):
                 with patch('torch.nn.functional.max_pool1d', side_effect=RuntimeError("F.max_pool1d called!")):
-                    model = CustomCNN1D_INT7(in_channels=24)
-                    x = torch.randint(-64, 63, (1, 24, 60), dtype=torch.int8)
+                    model = CustomCNN1D_INT8(in_channels=24)
+                    x = torch.randint(-128, 127, (1, 24, 60), dtype=torch.int8)
                     # Forward pass must complete without any RuntimeError
                     out = model(x)
                     self.assertEqual(out.shape, (1, 1))
+
+    def test_10_backward_compatibility_aliases(self):
+        self.assertIs(CustomCNN1D_INT7, CustomCNN1D_INT8)
+        self.assertIs(quantize_int7, quantize_int8)
+        self.assertIs(dequantize_int7, dequantize_int8)
+        self.assertIs(convert_to_int7, convert_to_int8)
+        
+        model = CustomCNN1D_INT8()
+        self.assertTrue(torch.equal(model.b1_dw.weight_int7, model.b1_dw.weight_int8))
 
 class TestCalibrationLoader(unittest.TestCase):
     @patch('scripts.quantize._get_partition_files')

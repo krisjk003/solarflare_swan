@@ -1,0 +1,30 @@
+=================================================================
+             REAL INT8 EVALUATION ON FULL PARTITION 5            
+=================================================================
+Calibration Partitions: 1,2,3
+Calibration Samples Used: 2000
+Selected Decision Threshold (frozen from P4): 0.5400
+Total P5 Test Samples: 75113
+Positive Samples (M/X): 990
+Negative Samples (Q/B/C): 74123
+INT8 P5 TSS: 0.5620
+INT8 P5 AUC: 0.9786
+INT8 P5 Precision: 0.4677
+INT8 P5 Recall: 0.5707
+INT8 P5 F1: 0.5141
+TP: 565, TN: 73480, FP: 643, FN: 425
+INT8 P5 Inference Time: 23.69 seconds
+=================================================================
+                  INT8 vs FP32 BASELINE COMPARISON               
+=================================================================
+FP32 Baseline TSS: 0.8685
+INT8 Quantized TSS: 0.5620
+TSS Delta (INT8 - FP32): -0.3065
+FP32 Baseline AUC: 0.9747 | INT8 AUC: 0.9786 (Delta: +0.0039)
+FP32 Precision:    0.1765 | INT8 Precision: 0.4677
+FP32 Recall:       0.9263 | INT8 Recall:    0.5707
+FP32 F1 Score:     0.2965 | INT8 F1 Score:  0.5141
+Confusion Matrix Comparison:
+  FP32: TP=917, TN=69845, FP=4278, FN=73
+  INT8: TP=565, TN=73480, FP=643, FN=425
+=================================================================

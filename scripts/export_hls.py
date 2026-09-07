@@ -5,10 +5,10 @@ import torch
 import torch.nn as nn
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from models.custom_cnn1d_int7 import CustomCNN1D_INT7
+from models.custom_cnn1d_int8 import CustomCNN1D_INT8, CustomCNN1D_INT7
 from models.quantization import IntegerConv1d, IntegerLinear, IntegerMaxPool1d, IntegerMeanPool
 
-def export_int_array(f, name, tensor, c_type="ap_int<7>"):
+def export_int_array(f, name, tensor, c_type="ap_int<8>"):
     flat = tensor.flatten().tolist()
     f.write(f"const {c_type} {name}[{len(flat)}] = {{\n  ")
     for i, val in enumerate(flat):
@@ -167,16 +167,16 @@ def export_hls_from_model(model, out_dir="results/hls_export"):
     layers_meta.append(get_layer_metadata("fc2", model.fc2, [32], [1]))
     
     metadata = {
-        "model_name": "CustomCNN1D_INT7",
+        "model_name": "CustomCNN1D_INT8",
         "target": "Vivado HLS",
         "numerical_format": {
-            "weight_bits": 7,
-            "activation_bits": 7,
+            "weight_bits": 8,
+            "activation_bits": 8,
             "bias_bits": 32,
             "accumulator_bits": 32,
             "signed": True,
-            "qmin": -64,
-            "qmax": 63,
+            "qmin": -128,
+            "qmax": 127,
             "zero_point": 0
         },
         "input_dimensions": [24, 60],
@@ -193,7 +193,7 @@ def export_hls_from_model(model, out_dir="results/hls_export"):
         f.write("#include <stdint.h>\n\n")
         
         f.write("// ==========================================================================\n")
-        f.write("// CustomCNN1D INT7 Model Parameters & Topology Configuration for Vivado HLS\n")
+        f.write("// CustomCNN1D INT8 Model Parameters & Topology Configuration for Vivado HLS\n")
         f.write("// ==========================================================================\n\n")
         
         f.write(f"#define MODEL_INPUT_CHANNELS 24\n")
@@ -225,7 +225,7 @@ def export_hls_from_model(model, out_dir="results/hls_export"):
         f.write("// --- Weights & Biases Arrays ---\n\n")
         for name in ["b1_dw", "b1_pw", "b2_dw", "b2_pw", "b3_dw", "b3_pw", "b4_dw", "b4_pw", "fc1", "fc2"]:
             layer = getattr(model, name)
-            export_int_array(f, f"{name}_weight", layer.weight_int7, "ap_int<7>")
+            export_int_array(f, f"{name}_weight", layer.weight_int8, "ap_int<8>")
             if layer.bias_int32 is not None:
                 export_int_array(f, f"{name}_bias", layer.bias_int32, "ap_int<32>")
                 
@@ -234,12 +234,15 @@ def export_hls_from_model(model, out_dir="results/hls_export"):
     return header_path, json_path
 
 def main():
-    checkpoint_path = "checkpoints/int7/custom_cnn1d_int7.pt"
+    checkpoint_path = "checkpoints/int8/custom_cnn1d_int8.pt"
     if not os.path.exists(checkpoint_path):
-        print(f"Skipping export: {checkpoint_path} not found.")
-        return
+        # Fallback to int7 path if int8 checkpoint does not exist yet
+        checkpoint_path = "checkpoints/int7/custom_cnn1d_int7.pt"
+        if not os.path.exists(checkpoint_path):
+            print(f"Skipping export: checkpoint not found.")
+            return
         
-    model = CustomCNN1D_INT7()
+    model = CustomCNN1D_INT8()
     checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     model.load_state_dict(checkpoint['model_state_dict'])
     export_hls_from_model(model)

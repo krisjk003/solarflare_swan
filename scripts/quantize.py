@@ -8,8 +8,8 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from models.custom_cnn1d import CustomCNN1D
-from models.custom_cnn1d_int7 import CustomCNN1D_INT7
-from models.quantization import calculate_symmetric_scale, quantize_int7, quantize_bias_int32, compute_multiplier_shift
+from models.custom_cnn1d_int8 import CustomCNN1D_INT8, CustomCNN1D_INT7
+from models.quantization import calculate_symmetric_scale, quantize_int8, quantize_bias_int32, compute_multiplier_shift
 from data.dataset import _get_partition_files, load_files_to_matrix, create_dataloader
 from data.preprocess import remove_mostly_bad, official_nan_to_num, transform_minmax, TargetExtractor
 
@@ -88,8 +88,8 @@ def prepare_calibration_data(data_dir, partitions_str, checkpoint_preprocessing,
     
     print("Applying preprocessing from frozen checkpoint...")
     fallback_mean = np.array(checkpoint_preprocessing['fallback_mean'])
-    X_min = np.array(checkpoint_preprocessing['X_min'])
-    X_max = np.array(checkpoint_preprocessing['X_max'])
+    X_min = np.array(checkpoint_preprocessing.get('min_val', checkpoint_preprocessing.get('X_min')))
+    X_max = np.array(checkpoint_preprocessing.get('max_val', checkpoint_preprocessing.get('X_max')))
     
     if fallback_mean is None or X_min is None or X_max is None:
         raise ValueError("Checkpoint is missing required preprocessing parameters!")
@@ -185,47 +185,47 @@ def run_calibration(fused_model, dataloader, device):
         
     return act_max
 
-def quantize_layer(fp32_layer, int7_layer, in_scale, out_scale):
+def quantize_layer(fp32_layer, int8_layer, in_scale, out_scale):
     w_scale = calculate_symmetric_scale(fp32_layer.weight.data)
-    int7_layer.weight_scale.copy_(w_scale)
-    int7_layer.input_scale.copy_(in_scale)
-    int7_layer.output_scale.copy_(out_scale)
+    int8_layer.weight_scale.copy_(w_scale)
+    int8_layer.input_scale.copy_(in_scale)
+    int8_layer.output_scale.copy_(out_scale)
     
-    int7_layer.weight_int7.copy_(quantize_int7(fp32_layer.weight.data, w_scale))
+    int8_layer.weight_int8.copy_(quantize_int8(fp32_layer.weight.data, w_scale))
     
     acc_scale = in_scale * w_scale
-    if hasattr(fp32_layer, 'bias') and fp32_layer.bias is not None and hasattr(int7_layer, 'bias_int32') and int7_layer.bias_int32 is not None:
-        int7_layer.bias_int32.copy_(quantize_bias_int32(fp32_layer.bias.data, acc_scale))
+    if hasattr(fp32_layer, 'bias') and fp32_layer.bias is not None and hasattr(int8_layer, 'bias_int32') and int8_layer.bias_int32 is not None:
+        int8_layer.bias_int32.copy_(quantize_bias_int32(fp32_layer.bias.data, acc_scale))
         
     real_multiplier = acc_scale / out_scale
     m, s = compute_multiplier_shift(real_multiplier.item())
-    int7_layer.multiplier.copy_(torch.tensor(m, dtype=torch.int32))
-    int7_layer.shift.copy_(torch.tensor(s, dtype=torch.int32))
+    int8_layer.multiplier.copy_(torch.tensor(m, dtype=torch.int32))
+    int8_layer.shift.copy_(torch.tensor(s, dtype=torch.int32))
 
-def convert_to_int7(fused_model, act_max):
-    int7_model = CustomCNN1D_INT7()
+def convert_to_int8(fused_model, act_max):
+    int8_model = CustomCNN1D_INT8()
     
     def get_scale(name):
-        return torch.tensor(act_max[name] / 63.0).clamp(min=1e-8)
+        return torch.tensor(act_max[name] / 127.0).clamp(min=1e-8)
         
     in_scale = get_scale('input')
-    int7_model.input_scale.copy_(in_scale)
+    int8_model.input_scale.copy_(in_scale)
     
     # Block 1
-    quantize_layer(fused_model.b1_dw, int7_model.b1_dw, in_scale, get_scale('b1_dw'))
-    quantize_layer(fused_model.b1_pw, int7_model.b1_pw, get_scale('b1_dw'), get_scale('b1_pw'))
+    quantize_layer(fused_model.b1_dw, int8_model.b1_dw, in_scale, get_scale('b1_dw'))
+    quantize_layer(fused_model.b1_pw, int8_model.b1_pw, get_scale('b1_dw'), get_scale('b1_pw'))
     
     # Block 2 (Input is pool of b1_relu. MaxPool doesn't change scale, so input is b1_relu)
-    quantize_layer(fused_model.b2_dw, int7_model.b2_dw, get_scale('b1_relu'), get_scale('b2_dw'))
-    quantize_layer(fused_model.b2_pw, int7_model.b2_pw, get_scale('b2_dw'), get_scale('b2_pw'))
+    quantize_layer(fused_model.b2_dw, int8_model.b2_dw, get_scale('b1_relu'), get_scale('b2_dw'))
+    quantize_layer(fused_model.b2_pw, int8_model.b2_pw, get_scale('b2_dw'), get_scale('b2_pw'))
     
     # Block 3
-    quantize_layer(fused_model.b3_dw, int7_model.b3_dw, get_scale('b2_relu'), get_scale('b3_dw'))
-    quantize_layer(fused_model.b3_pw, int7_model.b3_pw, get_scale('b3_dw'), get_scale('b3_pw'))
+    quantize_layer(fused_model.b3_dw, int8_model.b3_dw, get_scale('b2_relu'), get_scale('b3_dw'))
+    quantize_layer(fused_model.b3_pw, int8_model.b3_pw, get_scale('b3_dw'), get_scale('b3_pw'))
     
     # Block 4
-    quantize_layer(fused_model.b4_dw, int7_model.b4_dw, get_scale('b3_relu'), get_scale('b4_dw'))
-    quantize_layer(fused_model.b4_pw, int7_model.b4_pw, get_scale('b4_dw'), get_scale('b4_pw'))
+    quantize_layer(fused_model.b4_dw, int8_model.b4_dw, get_scale('b3_relu'), get_scale('b4_dw'))
+    quantize_layer(fused_model.b4_pw, int8_model.b4_pw, get_scale('b4_dw'), get_scale('b4_pw'))
     
     # Mean Pool
     # Mean pool sum scale = b4_relu scale
@@ -233,30 +233,33 @@ def convert_to_int7(fused_model, act_max):
     mean_out_scale = get_scale('x_mean')
     # real multiplier for mean = mean_in_scale / (7 * mean_out_scale)
     m_mean, s_mean = compute_multiplier_shift((mean_in_scale / (7.0 * mean_out_scale)).item())
-    int7_model.mean_pool.input_scale.copy_(mean_in_scale)
-    int7_model.mean_pool.output_scale.copy_(mean_out_scale)
-    int7_model.mean_pool.multiplier.copy_(torch.tensor(m_mean, dtype=torch.int32))
-    int7_model.mean_pool.shift.copy_(torch.tensor(s_mean, dtype=torch.int32))
+    int8_model.mean_pool.input_scale.copy_(mean_in_scale)
+    int8_model.mean_pool.output_scale.copy_(mean_out_scale)
+    int8_model.mean_pool.multiplier.copy_(torch.tensor(m_mean, dtype=torch.int32))
+    int8_model.mean_pool.shift.copy_(torch.tensor(s_mean, dtype=torch.int32))
     
     # Max Pool alignment for Concat
     max_in_scale = get_scale('b4_relu')
     concat_scale = get_scale('x_concat') # we force mean and max to this scale
     # Requantize max pool output (which inherently has scale max_in_scale) to concat_scale
     m_max, s_max = compute_multiplier_shift((max_in_scale / concat_scale).item())
-    int7_model.concat_max_multiplier.copy_(torch.tensor(m_max, dtype=torch.int32))
-    int7_model.concat_max_shift.copy_(torch.tensor(s_max, dtype=torch.int32))
+    int8_model.concat_max_multiplier.copy_(torch.tensor(m_max, dtype=torch.int32))
+    int8_model.concat_max_shift.copy_(torch.tensor(s_max, dtype=torch.int32))
     
     # We must also force mean pool output scale to be exactly concat_scale to prevent issues
     m_mean, s_mean = compute_multiplier_shift((mean_in_scale / (7.0 * concat_scale)).item())
-    int7_model.mean_pool.output_scale.copy_(concat_scale)
-    int7_model.mean_pool.multiplier.copy_(torch.tensor(m_mean, dtype=torch.int32))
-    int7_model.mean_pool.shift.copy_(torch.tensor(s_mean, dtype=torch.int32))
+    int8_model.mean_pool.output_scale.copy_(concat_scale)
+    int8_model.mean_pool.multiplier.copy_(torch.tensor(m_mean, dtype=torch.int32))
+    int8_model.mean_pool.shift.copy_(torch.tensor(s_mean, dtype=torch.int32))
     
     # Classifier
-    quantize_layer(fused_model.classifier[0], int7_model.fc1, concat_scale, get_scale('fc1'))
-    quantize_layer(fused_model.classifier[3], int7_model.fc2, get_scale('fc1_relu'), get_scale('fc2'))
+    quantize_layer(fused_model.classifier[0], int8_model.fc1, concat_scale, get_scale('fc1'))
+    quantize_layer(fused_model.classifier[3], int8_model.fc2, get_scale('fc1_relu'), get_scale('fc2'))
     
-    return int7_model
+    return int8_model
+
+# Backward compatibility alias
+convert_to_int7 = convert_to_int8
 
 def main():
     import argparse
@@ -293,22 +296,22 @@ def main():
     print("Running static calibration with REAL SWAN-SF dataset...")
     act_max = run_calibration(fused_model, calib_loader, device)
     
-    print("Converting to INT7 Fixed-Point Model...")
-    int7_model = convert_to_int7(fused_model, act_max)
+    print("Converting to INT8 Fixed-Point Model...")
+    int8_model = convert_to_int8(fused_model, act_max)
     
-    out_dir = "checkpoints/int7"
+    out_dir = "checkpoints/int8"
     os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, "custom_cnn1d_int7.pt")
+    out_path = os.path.join(out_dir, "custom_cnn1d_int8.pt")
     
     torch.save({
-        'model_state_dict': int7_model.state_dict(),
+        'model_state_dict': int8_model.state_dict(),
         'act_max_dict': act_max,
         'calib_partitions': args.calib_partitions,
         'calibration_samples': args.calibration_samples,
         'preprocessing': checkpoint.get('preprocessing', {})
     }, out_path)
     
-    print(f"INT7 model saved to {out_path}")
+    print(f"INT8 model saved to {out_path}")
 
 if __name__ == "__main__":
     main()

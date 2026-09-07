@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from models.quantization import IntegerConv1d, IntegerLinear, IntegerReLU, IntegerMaxPool1d, IntegerMeanPool, requantize
 
-class CustomCNN1D_INT7(nn.Module):
+class CustomCNN1D_INT8(nn.Module):
     def __init__(self, in_channels=24):
         super().__init__()
         
@@ -45,11 +45,11 @@ class CustomCNN1D_INT7(nn.Module):
         # Input quantization metadata
         self.register_buffer('input_scale', torch.tensor(1.0))
         
-    def forward(self, x_int7):
-        # x_int7: [B, 24, 60] INT7
+    def forward(self, x_int8):
+        # x_int8: [B, 24, 60] INT8
         
         # Block 1
-        x = self.b1_dw(x_int7)
+        x = self.b1_dw(x_int8)
         x = self.b1_pw(x)
         x = self.b1_relu(x)
         x = self.b1_pool(x)
@@ -79,7 +79,7 @@ class CustomCNN1D_INT7(nn.Module):
         x_max = requantize(x_max_int32, self.concat_max_multiplier.item(), self.concat_max_shift.item())
         
         # Concat
-        x_concat = torch.cat([x_mean, x_max], dim=1) # [B, 256] INT7
+        x_concat = torch.cat([x_mean, x_max], dim=1) # [B, 256] INT8
         
         # Classifier
         x = self.fc1(x_concat)
@@ -87,3 +87,6 @@ class CustomCNN1D_INT7(nn.Module):
         x = self.fc2(x)
         
         return x
+
+# Backward compatibility alias
+CustomCNN1D_INT7 = CustomCNN1D_INT8
