@@ -1,0 +1,9 @@
+{
+  "name": "cnn_hls_project",
+  "type": "HLS",
+  "configuration": {
+    "componentType": "HLS",
+    "configFiles": ["..\/hls\/hls_config.cfg"],
+    "work_dir": "."
+  }
+}

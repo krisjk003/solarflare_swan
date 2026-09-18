@@ -1,0 +1,42 @@
+/ {
+	amba_pl: amba_pl {
+		ranges;
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		firmware-name = "solar_flare_wrapper.bit.bin";
+		clocking0: clocking0 {
+			compatible = "xlnx,fclk";
+			assigned-clocks = <&clkc 15>;
+			assigned-clock-rates = <100000000>;
+			#clock-cells = <0>;
+			clock-output-names = "fabric_clk";
+			clocks = <&clkc 15>;
+		};
+		afi0: afi0@f8008000 {
+			status = "okay";
+			compatible = "xlnx,afi-fpga";
+			#address-cells = <1>;
+			reg = <0xF8008000 0x1000>;
+			#size-cells = <0>;
+			xlnx,afi-width = <0>;
+		};
+		cnn_forward_0: cnn_forward@40000000 {
+			compatible = "xlnx,cnn-forward-1.0";
+			xlnx,ii = <318783>;
+			xlnx,machine = <64>;
+			xlnx,ip-name = "cnn_forward";
+			reg = <0x40000000 0x10000>;
+			clocks = <&clkc 15>;
+			xlnx,s-axi-ctrl-addr-width = <6>;
+			xlnx,clk-period = <10>;
+			xlnx,edk-iptype = "PERIPHERAL";
+			status = "okay";
+			clock-names = "ap_clk";
+			xlnx,combinational = <0>;
+			xlnx,s-axi-ctrl-data-width = <32>;
+			xlnx,latency = <318782>;
+			xlnx,name = "cnn_forward_0";
+		};
+	};
+};

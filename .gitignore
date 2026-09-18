@@ -105,3 +105,50 @@ checkpoints/*
 
 # Do not ignore .gitkeep files in general
 !.gitkeep
+
+# FPGA/Vivado/Vitis Generated Build Artifacts
+vivado/**/*.runs/
+vivado/**/*.cache/
+vivado/**/*.hw/
+vivado/**/*.sim/
+vivado/**/*.ip_user_files/
+cnn_hls_project/hls/.autopilot/
+cnn_hls_project/hls/impl/
+cnn_hls_project/hls/sim/
+cnn_hls_project/hls/syn/
+cnn_hls_project/logs/
+cnn_hls_project/*.summary
+cnn_hls_project/*.zip
+vitis/solar_flare_app/build/
+vitis/solar_flare_platform/export/
+vitis/solar_flare_platform/zynq_fsbl/
+vitis/solar_flare_platform/logs/
+vitis/_ide/
+vitis_manual/_ide/
+.Xil/
+
+# Logs and Journals
+*.jou
+*.log
+*.pb
+*.wdb
+*.str
+*.bak
+*.backup.*
+*~
+*.vdi
+
+# Ensure results are ignored except explicitly needed files
+results/*
+!results/.gitkeep
+!results/int8_real/
+results/int8_real/*
+!results/int8_real/hls/
+results/int8_real/hls/*
+!results/int8_real/hls/weights.h
+!results/int8_real/hls/model_metadata.json
+
+# If there are other hls_export we might want to keep, let's keep all hls directories in results
+!results/*/hls/
+*.o
+*.a

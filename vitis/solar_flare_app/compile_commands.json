@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/jyothish/solar-flare-swan-fpga/vitis/solar_flare_app/build",
+  "command": "/opt/Xilinx/2026.1/2026.1/Vitis/gnu/aarch32/lin/gcc-arm-none-eabi/bin/arm-none-eabi-gcc -I/home/jyothish/solar-flare-swan-fpga/vitis/solar_flare_app/src -isystem /home/jyothish/solar-flare-swan-fpga/vitis/solar_flare_platform/export/solar_flare_platform/sw/standalone_ps7_cortexa9_0/include -isystem /opt/Xilinx/2026.1/2026.1/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/usr/lib/arm-xilinx-eabi/gcc/arm-xilinx-eabi/13.4.0/include -isystem /opt/Xilinx/2026.1/2026.1/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/usr/lib/arm-xilinx-eabi/gcc/arm-xilinx-eabi/13.4.0/include-fixed -isystem /opt/Xilinx/2026.1/2026.1/Vitis/gnu/aarch32/lin/gcc-arm-none-eabi/aarch32-xilinx-eabi/usr/include  -DSDT -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard  -MMD -MP -specs=/home/jyothish/solar-flare-swan-fpga/vitis/solar_flare_platform/export/solar_flare_platform/sw/standalone_ps7_cortexa9_0/Xilinx.spec -I/home/jyothish/solar-flare-swan-fpga/vitis/solar_flare_platform/export/solar_flare_platform/sw/standalone_ps7_cortexa9_0/include -Wall -Wextra      -O0  -g3     -U__clang__ -o CMakeFiles/solar_flare_app.elf.dir/home/jyothish/solar-flare-swan-fpga/vitis/solar_flare_app/main.c.obj -c /home/jyothish/solar-flare-swan-fpga/vitis/solar_flare_app/main.c",
+  "file": "/home/jyothish/solar-flare-swan-fpga/vitis/solar_flare_app/main.c",
+  "output": "CMakeFiles/solar_flare_app.elf.dir/home/jyothish/solar-flare-swan-fpga/vitis/solar_flare_app/main.c.obj"
+}
+]

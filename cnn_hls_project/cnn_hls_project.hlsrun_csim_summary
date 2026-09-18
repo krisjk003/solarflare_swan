@@ -1,0 +1,156 @@
+<ENTRY>
+{
+ "thisFile": "/home/jyothish/solar-flare-swan-fpga/cnn_hls_project/cnn_hls_project.hlsrun_csim_summary",
+ "connectId": "",
+ "serverToken": "",
+ "timestamp": "0"
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_CmdStep",
+ "dateTimestamp": "Fri Sep 11 19:42:20 2026",
+ "timestampMillis": "1789135940744",
+ "buildStep": {
+  "cmdId": "e8ab0890-fdc0-4e9d-a0f6-18606e35016f",
+  "name": "vitis-run",
+  "logFile": "/home/jyothish/solar-flare-swan-fpga/cnn_hls_project/logs/cnn_hls_project.steps.log",
+  "commandLine": "/opt/Xilinx/2026.1/2026.1/Vitis/bin/unwrapped/lnx64.o/vitis-run  --mode hls --csim --config hls/hls_config.cfg --work_dir cnn_hls_project ",
+  "args": [
+   "--mode",
+   "hls",
+   "--csim",
+   "--config",
+   "hls/hls_config.cfg",
+   "--work_dir",
+   "cnn_hls_project"
+  ],
+  "iniFiles": [],
+  "cwd": "/home/jyothish/solar-flare-swan-fpga"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Fri Sep 11 19:42:20 2026",
+ "timestampMillis": "1789135940744",
+ "status": {
+  "cmdId": "e8ab0890-fdc0-4e9d-a0f6-18606e35016f",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_FlowMetaData",
+ "dateTimestamp": "Fri Sep 11 19:42:23 2026",
+ "timestampMillis": "1789135943185",
+ "buildSummary": {
+  "hardwarePlatform": "",
+  "hardwareDsa": "",
+  "platformDirectory": "",
+  "runtime": "",
+  "systemConfig": "",
+  "flow": "BF_RUN",
+  "target": "TT_HLS_C_SIM",
+  "kernels": [
+   {
+    "base": {
+     "type": "KERNEL",
+     "name": "cnn_forward",
+     "file": "",
+     "reports": [],
+     "uuid": ""
+    },
+    "sources": [
+     "/home/jyothish/solar-flare-swan-fpga/hls/cnn_hw.cpp"
+    ],
+    "psSources": [],
+    "cuNames": [],
+    "type": "HLS",
+    "frequency": 0,
+    "freqUnits": ""
+   }
+  ],
+  "toolVersion": "2026.1"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_SubCmdStep",
+ "dateTimestamp": "Fri Sep 11 19:42:23 2026",
+ "timestampMillis": "1789135943186",
+ "buildStep": {
+  "cmdId": "7fef284f-93c8-4bd4-8316-823fbc8e3209",
+  "name": "",
+  "logFile": "/home/jyothish/solar-flare-swan-fpga/cnn_hls_project/hls/hls.log",
+  "commandLine": "",
+  "args": [],
+  "iniFiles": [],
+  "cwd": "/home/jyothish/solar-flare-swan-fpga"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Fri Sep 11 19:42:23 2026",
+ "timestampMillis": "1789135943186",
+ "status": {
+  "cmdId": "7fef284f-93c8-4bd4-8316-823fbc8e3209",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Fri Sep 11 19:42:23 2026",
+ "timestampMillis": "1789135943388",
+ "status": {
+  "cmdId": "7fef284f-93c8-4bd4-8316-823fbc8e3209",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Fri Sep 11 19:42:23 2026",
+ "timestampMillis": "1789135943482",
+ "status": {
+  "cmdId": "e8ab0890-fdc0-4e9d-a0f6-18606e35016f",
+  "state": "CS_FAILED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Fri Sep 11 19:42:23 2026",
+ "timestampMillis": "1789135943482",
+ "report": {
+  "path": "",
+  "name": "",
+  "fileType": "HTML",
+  "reportType": "GLOBAL_RULECHECK_GUIDANCE",
+  "cmdId": ""
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Fri Sep 11 19:42:23 2026",
+ "timestampMillis": "1789135943483",
+ "report": {
+  "path": "",
+  "name": "",
+  "fileType": "BINARY_PROTOBUF",
+  "reportType": "GLOBAL_RULECHECK_GUIDANCE",
+  "cmdId": ""
+ }
+}
+</ENTRY>

@@ -1,0 +1,12 @@
+create libxil.a
+addlib /home/jyothish/solar-flare-swan-fpga/vitis/solar_flare_platform/ps7_cortexa9_0/standalone_ps7_cortexa9_0/bsp/libsrc/build_configs/gen_bsp/libsrc/xadcps/src/libxadcps.a
+addlib /home/jyothish/solar-flare-swan-fpga/vitis/solar_flare_platform/ps7_cortexa9_0/standalone_ps7_cortexa9_0/bsp/libsrc/build_configs/gen_bsp/libsrc/uartps/src/libuartps.a
+addlib /home/jyothish/solar-flare-swan-fpga/vitis/solar_flare_platform/ps7_cortexa9_0/standalone_ps7_cortexa9_0/bsp/libsrc/build_configs/gen_bsp/libsrc/scuwdt/src/libscuwdt.a
+addlib /home/jyothish/solar-flare-swan-fpga/vitis/solar_flare_platform/ps7_cortexa9_0/standalone_ps7_cortexa9_0/bsp/libsrc/build_configs/gen_bsp/libsrc/scutimer/src/libscutimer.a
+addlib /home/jyothish/solar-flare-swan-fpga/vitis/solar_flare_platform/ps7_cortexa9_0/standalone_ps7_cortexa9_0/bsp/libsrc/build_configs/gen_bsp/libsrc/scugic/src/libscugic.a
+addlib /home/jyothish/solar-flare-swan-fpga/vitis/solar_flare_platform/ps7_cortexa9_0/standalone_ps7_cortexa9_0/bsp/libsrc/build_configs/gen_bsp/libsrc/dmaps/src/libdmaps.a
+addlib /home/jyothish/solar-flare-swan-fpga/vitis/solar_flare_platform/ps7_cortexa9_0/standalone_ps7_cortexa9_0/bsp/libsrc/build_configs/gen_bsp/libsrc/devcfg/src/libdevcfg.a
+addlib /home/jyothish/solar-flare-swan-fpga/vitis/solar_flare_platform/ps7_cortexa9_0/standalone_ps7_cortexa9_0/bsp/libsrc/build_configs/gen_bsp/libsrc/coresightps_dcc/src/libcoresightps_dcc.a
+addlib /home/jyothish/solar-flare-swan-fpga/vitis/solar_flare_platform/ps7_cortexa9_0/standalone_ps7_cortexa9_0/bsp/libsrc/build_configs/gen_bsp/libsrc/cnn_forward/src/libcnn_forward.a
+save
+end

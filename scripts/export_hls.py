@@ -234,18 +234,15 @@ def export_hls_from_model(model, out_dir="results/hls_export"):
     return header_path, json_path
 
 def main():
-    checkpoint_path = "checkpoints/int8/custom_cnn1d_int8.pt"
+    checkpoint_path = "checkpoints/int8_real/custom_cnn1d_int8_real.pt"
     if not os.path.exists(checkpoint_path):
-        # Fallback to int7 path if int8 checkpoint does not exist yet
-        checkpoint_path = "checkpoints/int7/custom_cnn1d_int7.pt"
-        if not os.path.exists(checkpoint_path):
-            print(f"Skipping export: checkpoint not found.")
-            return
-        
+        print(f"Skipping export: checkpoint not found at {checkpoint_path}")
+        return
+
     model = CustomCNN1D_INT8()
     checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     model.load_state_dict(checkpoint['model_state_dict'])
-    export_hls_from_model(model)
+    export_hls_from_model(model, out_dir="results/int8_real/hls")
 
 if __name__ == "__main__":
     main()
